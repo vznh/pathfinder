@@ -1,6 +1,14 @@
-import "@/styles/globals.css";
-import type { AppProps } from "next/app";
+import { AppProps } from "next/app";
+import Head from "next/head";
+import React, { FC } from "react";
+require("../styles/globals.css");
 
-export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+const App: FC<AppProps> = ({ Component, pageProps }) => {
+  return (
+    <div data-theme="black" className="pathfinder flex h-screen">
+      <Head>
+      </Head>
+      <Component {...pageProps} />
+    </div>
+  )
 }
