@@ -7,7 +7,9 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <div data-theme="black" className="pathfinder flex h-screen">
       <Head>
+        <title>⌘</title>
       </Head>
+
       <Component {...pageProps} />
     </div>
   )
