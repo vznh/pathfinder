@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { NextPage } from "next";
-import HomeLayout from "@/layouts/HomeLayout";
+import MapView from "@/views";
 
 const Homepage: NextPage = (props) => {
   return (
@@ -9,11 +9,7 @@ const Homepage: NextPage = (props) => {
         <title>⌘</title>
       </Head>
       { /* Main view will go here */}
-      <HomeLayout
-        leftChild={<></>}
-        rightChild={<></>}
-      />
-
+      <MapView />
     </div>
   )
 };
