@@ -9,7 +9,7 @@ const Map: React.FC = () => {
     if (mapContainer.current) {
       mapboxClient.initialize({
         container: mapContainer.current,
-        style: "mapbox://styles/mapbox/navigation-night-v1",
+        style: "mapbox://styles/jvson/cm9p1p5yz00db01rmguae0rj3",
         center: [-122.05886, 36.99558],
         zoom: 9,
         maxBounds: [
@@ -17,7 +17,6 @@ const Map: React.FC = () => {
           [-122.01639, 37.0263],
         ],
       });
-      console.log("initialize map");
     }
     return () => {
       mapboxClient.destroy();
@@ -25,9 +24,9 @@ const Map: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <div>
       <div ref={mapContainer} className="w-screen h-screen" />
-    </>
+    </div>
   );
 };
 

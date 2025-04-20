@@ -1,22 +1,22 @@
 // pages/_app.tsx
-import { AppProps } from "next/app";
+import type { AppProps } from "next/app";
 import Head from "next/head";
-import React, { FC, useRef } from "react";
+import React, { type FC, useRef } from "react";
 require("../styles/globals.css");
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
-  const mapRef = useRef<mapboxgl.Map>(null);
+	const mapRef = useRef<mapboxgl.Map>(null);
 
-  return (
-    <>
-      <div data-theme="black" className="cruzmaps-app flex h-screen">
-        <Head>
-          <title>CruzMaps</title>
-        </Head>
-        <Component {...pageProps} />
-      </div>
-    </>
-  );
+	return (
+		<>
+			<div data-theme="black" className="pathfinder-app flex h-screen">
+				<Head>
+					<title>⌘</title>
+				</Head>
+				<Component {...pageProps} />
+			</div>
+		</>
+	);
 };
 
 export default App;
