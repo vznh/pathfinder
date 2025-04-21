@@ -57,6 +57,11 @@ const MapView: React.FC = () => {
 		}
 	};
 
+	const createEvent = () => {
+	  // perform api call here, will just print to cosnole for now
+    console.log("* Attempted to create event");
+	}
+
 	return (
 		<div>
 			<div className="absolute inset-0">
@@ -109,6 +114,7 @@ const MapView: React.FC = () => {
 					onClick={() => setWaypointMode(!waypointMode)}
 				/>
 
+				{ /* this needs to go */}
 				{selectedWaypoint && (
 					<div className="absolute bottom-20 left-4 bg-white p-4 rounded-lg shadow-lg">
 						<div className="flex justify-between items-center mb-2">
@@ -140,6 +146,12 @@ const MapView: React.FC = () => {
 							>
 								Apple Maps
 							</button>
+              <button
+                onClick={createEvent}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
+              >
+                Create Event
+              </button>
 						</div>
 					</div>
 				)}
