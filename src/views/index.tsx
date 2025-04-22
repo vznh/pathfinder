@@ -24,16 +24,16 @@ const MapView: React.FC = () => {
 				const coordinates = e.lngLat.toArray() as [number, number];
 				setSelectedWaypoint(coordinates);
 
-				mapboxClient.zoomTo(coordinates, 18, true);
-				mapboxClient.addMarker(coordinates);
+				mapboxClient.camera.zoomTo(coordinates, 18, true);
+				mapboxClient.events.addBaseMarker(coordinates);
 				setWaypointMode(false);
 			};
 
-			mapboxClient.get().once("click", handleClick);
+			mapboxClient.getMap().once("click", handleClick);
 
 			return () => {
 				document.body.style.cursor = "";
-				mapboxClient.get().off("click", handleClick);
+				mapboxClient.getMap().off("click", handleClick);
 			};
 		} else {
 			document.body.style.cursor = "";
@@ -73,7 +73,7 @@ const MapView: React.FC = () => {
 					icon={<SewingPinFilledIcon className="w-5 h-5" />}
 					position={"bottom-right"}
 					onClick={() =>
-						mapboxClient.zoomTo(
+						mapboxClient.camera.zoomTo(
 							[-122.06441040634448, 36.99225113910849],
 							20,
 							true,
@@ -84,12 +84,11 @@ const MapView: React.FC = () => {
 					icon={<ThickArrowUpIcon className="w-5 h-5" />}
 					position={"top-right"}
 					onClick={() => {
-						mapboxClient.getUserLocation((coords) => {
-							mapboxClient.zoomTo(
+						mapboxClient.geolocation.getUserLocation((coords) => {
+							mapboxClient.camera.zoomTo(
 								[coords.longitude, coords.latitude],
 								20,
 								false,
-								true, // snap
 							);
 						});
 					}}
@@ -98,8 +97,8 @@ const MapView: React.FC = () => {
 					icon={<PlusCircledIcon className="w-5 h-5" />}
 					position={"top-right"}
 					onClick={() => {
-						mapboxClient.getUserLocation((coords) => {
-							mapboxClient.zoomTo(
+						mapboxClient.geolocation.getUserLocation((coords) => {
+							mapboxClient.camera.zoomTo(
 								[coords.longitude, coords.latitude],
 								20,
 								false,
@@ -123,7 +122,7 @@ const MapView: React.FC = () => {
 								className="text-gray-500 hover:text-gray-700"
 								onClick={() => {
 									setSelectedWaypoint(null);
-									mapboxClient.removeMarker();
+									mapboxClient.events.removeAnyMarkers();
 								}}
 							>
 								<Cross2Icon className="w-4 h-4" />

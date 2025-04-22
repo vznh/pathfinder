@@ -1,178 +1,276 @@
-import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 // src/components/MapboxClient.tsx
 import mapboxgl from "mapbox-gl";
 
 export interface mapboxClientResponse {
-	data?: Array<any>;
-	success?: boolean;
-	error?: string;
+  data?: Array<any>;
+  success?: boolean;
+  error?: string;
 }
 
 export interface GeoCoordinates {
-	longitude: number;
-	latitude: number;
+  longitude: number;
+  latitude: number;
 }
 
-interface mapboxClient {
-	initialize(options: mapboxgl.MapOptions): void;
-	destroy(): void;
-	get(): mapboxgl.Map;
-
-	zoomTo(coordinates: [number, number], zoomLevel: number, is3D: boolean): void;
-
-	getUserLocation(callback: (coords: GeoCoordinates) => void): void;
-	addMarker(coordinates: [number, number]): void;
-	removeMarker(): void;
+interface MapboxClient {
+  initialize(options: mapboxgl.MapOptions): void;
+  destroy(): void;
+  getMap(): mapboxgl.Map;
 }
 
-class mapboxClientImpl implements mapboxClient {
-	private readonly apiKey: string;
-	private baseURL: string;
-	private map?: mapboxgl.Map | null;
-	private geocoder?: MapboxGeocoder;
-	private watchID?: number;
-	private currMarker: mapboxgl.Marker | null = null;
-	// TODO:
-	// rate limiter
-	// query options
+interface NavigationService {}
 
-	constructor(apiKey: string, baseURL: string) {
-		if (!apiKey) throw new Error("missing mapbox api key");
-		this.apiKey = apiKey;
-		this.baseURL = baseURL;
-	}
+interface EventService {
+  addBaseMarker(coords: [number, number]): void;
+  removeAnyMarkers(): void;
+}
 
-	initialize(options: mapboxgl.MapOptions): void {
-		mapboxgl.accessToken = this.apiKey;
-		this.map = new mapboxgl.Map({
-			...options,
-		});
+interface GeolocationService {
+  getUserLocation(callback: (coords: GeoCoordinates) => void): void;
+  startTrackingUserLocation(callback: (coords: GeoCoordinates) => void): void;
+  stopTrackingUserLocation(): void;
+}
 
-		this.map.on("load", async () => {
-			try {
-				// await this.createDefaultMarkers();
-				console.log("default markers loadded");
-			} catch (err) {
-				console.log("failed to load default markers", err);
-			}
-		});
+interface CameraService {
+  zoomTo(coords: [number, number], zoomLevel: number, is3D: boolean): void;
+  snapTo(coords: [number, number], zoomLevel: number): void;
+}
 
-		this.geocoder = new MapboxGeocoder({
-			accessToken: this.apiKey,
-			mapboxgl: mapboxgl as any,
-			autocomplete: true,
-			bbox: [-122.07238, 36.98053, -122.04699, 37.00577],
-			countries: "US",
-		});
-	}
+/* */
+class MapboxClientImpl implements MapboxClient {
+  private static instance: MapboxClientImpl;
+  private key: string;
+  private map?: mapboxgl.Map | null;
 
-	destroy() {
-		if (this.map) {
-			this.map.remove();
-			this.map = null;
-		}
-	}
+  private navigationService: NavigationService;
+  private eventService: EventService;
+  private geolocationService: GeolocationService;
+  private cameraService: CameraService;
 
-	get(): mapboxgl.Map {
-		if (!this.map) throw new Error("map not found");
-		return this.map;
-	}
+  private constructor(key: string) {
+    this.key = key;
+    mapboxgl.accessToken = this.key;
 
-	/*
-	 * Zooms to a specific location with optional 3D view and snap behavior.
-	 */
-	zoomTo(
-		coordinates: [number, number],
-		zoomLevel: number,
-		is3D: boolean,
-		snap = false,
-	): void {
-		if (!this.map)
-			throw new Error(
-				"Map instance isn't initialized. Caught from func zoomTo",
-			);
+    this.navigationService = new NavigationServiceImpl(this);
+    this.eventService = new EventServiceImpl(this);
+    this.geolocationService = new GeolocationServiceImpl(this);
+    this.cameraService = new CameraServiceImpl(this);
+  }
 
-		const options = {
-			center: coordinates,
-			zoom: zoomLevel,
-			pitch: 0,
-			bearing: 0,
-			duration: 2000,
-			essential: true,
-			easing: (t: number) =>
-				t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2,
-		};
-		if (is3D) {
-			options.pitch = 60;
-			options.bearing = 30;
-		}
+  public static getInstance(key?: string): MapboxClientImpl {
+    if (!MapboxClientImpl.instance) {
+      if (!key) throw new Error("DEV: API key wasn't provided");
+      MapboxClientImpl.instance = new MapboxClientImpl(key);
+    }
 
-		if (snap) {
-			this.map.jumpTo(options);
-		} else {
-			this.map.flyTo(options);
-		}
-		// console.log("attempting to zoom");
-	}
+    return MapboxClientImpl.instance;
+  }
 
-	getUserLocation(callback: (coords: GeoCoordinates) => void): void {
-		if (this.watchID !== undefined) {
-			navigator.geolocation.clearWatch(this.watchID);
-			this.watchID = undefined;
-		}
+  public getMap(): mapboxgl.Map {
+    if (!this.map) throw new Error("DEV: Map isn't initialized yet");
+    return this.map;
+  }
 
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
-					const coordinates: GeoCoordinates = {
-						longitude: position.coords.longitude,
-						latitude: position.coords.latitude,
-					};
-					callback(coordinates);
-				},
-				(error) => {
-					// Handle not being able to get user permission
-					console.error(
-						"There was an error obtaining user geolocation: ",
-						error.message,
-					);
-				},
-				{ enableHighAccuracy: true },
-			);
-		} else {
-			// Handle here also being able to not get user perms
-			console.error("Geolocation isn't set-up for this platform yet.");
-		}
-	}
+  initialize(options: mapboxgl.MapOptions): void {
+    this.map = new mapboxgl.Map({ ...options });
+    this.map.on("load", () => {
+      // Verify that map is loaded to store
+      console.log("DEV: Map was successfully loaded.");
+    });
+  }
 
-	addMarker(coordinates: [number, number]): void {
-		if (!this.map)
-			throw new Error(
-				"Map instance isn't initialized. Caught from func addMarker",
-			);
+  destroy(): void {
+    this.map?.remove();
+    this.map = null;
+  }
 
-		this.removeMarker();
+  get navigation(): NavigationService {
+    return this.navigationService;
+  }
 
-		this.currMarker = new mapboxgl.Marker({
-			color: "#FFFFFF",
-			draggable: false,
-		})
-			.setLngLat(coordinates)
-			.addTo(this.map);
-	}
+  get events(): EventService {
+    return this.eventService;
+  }
 
-	removeMarker(): void {
-		if (this.currMarker) {
-			this.currMarker.remove();
-			this.currMarker = null;
-		}
-	}
+  get geolocation(): GeolocationService {
+    return this.geolocationService;
+  }
+
+  get camera(): CameraService {
+    return this.cameraService;
+  }
+}
+
+class NavigationServiceImpl implements NavigationService {
+  private client: MapboxClient;
+
+  constructor(client: MapboxClient) {
+    this.client = client;
+  }
+}
+
+class EventServiceImpl implements EventService {
+  private client: MapboxClient;
+  private marker: mapboxgl.Marker | null = null;
+
+  constructor(client: MapboxClient) {
+    this.client = client;
+  }
+
+  addBaseMarker(coords: [number, number]): void {
+    if (!this.client.getMap())
+      throw new Error(
+        "Map instance isn't initialized. Caught from func addBaseMarker",
+      );
+
+    // Clear any existing instance of markers
+    this.removeAnyMarkers();
+
+    // TODO: Make this marker into a 3D renderage of a sewing pin
+    this.marker = new mapboxgl.Marker({
+      color: "#FFFFFF",
+      draggable: false
+    })
+      .setLngLat(coords)
+      .addTo(this.client.getMap());
+  }
+
+  removeAnyMarkers(): void {
+    if (this.marker) {
+      this.marker.remove();
+      this.marker = null;
+    }
+  }
+}
+
+class GeolocationServiceImpl implements GeolocationService {
+  private client: MapboxClient;
+  private watchID?: number;
+
+  constructor(client: MapboxClient) {
+    this.client = client;
+  }
+
+  getUserLocation(callback: (coords: GeoCoordinates) => void): void {
+    if (!navigator.geolocation) {
+      console.error("USER + DEV: Geolocation isn't supported by this browser");
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords: GeoCoordinates = {
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude
+        };
+        callback(coords);
+      },
+      (error) => {
+        console.error(
+          "DEV: There was an error obtaining user geolocation. Message: ",
+          error.message,
+        );
+      },
+      { enableHighAccuracy: true }
+    );
+  }
+
+  startTrackingUserLocation(callback: (coords: GeoCoordinates) => void) {
+    // if tracking alr, stop
+    this.stopTrackingUserLocation();
+
+    if (!navigator.geolocation) {
+      console.error("USER + DEV: Geolocation isn't supported by this browser");
+    }
+
+    this.watchID = navigator.geolocation.watchPosition(
+      (position) => {
+        const coords: GeoCoordinates = {
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude
+        };
+        callback(coords);
+      },
+      (error) => {
+        console.error(
+          "DEV: There was an error attempting to track user position. Message: ",
+          error.message
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 1000
+      }
+    );
+
+    console.log("Location tracking started with ID: ", this.watchID);
+  }
+
+  stopTrackingUserLocation() {
+    if (this.watchID !== undefined) {
+      navigator.geolocation.clearWatch(this.watchID);
+      console.log("DEV: Location stopped tracking for ID: ", this.watchID);
+      this.watchID = undefined;
+    }
+  }
+}
+
+class CameraServiceImpl implements CameraService {
+  private client: MapboxClient;
+
+  constructor(client: MapboxClient) {
+    this.client = client;
+  }
+
+  zoomTo(coordinates: [number, number], zoomLevel: number, is3D: boolean) {
+    const map = this.client.getMap();
+    if (!map) {
+      throw new Error(
+        "USER: Map wasn't initialized properly. Thrown from zoomTo function.",
+      );
+    }
+
+    const options = {
+      center: coordinates,
+      zoom: zoomLevel,
+      pitch: 0,
+      bearing: 0,
+      duration: 2000,
+      essential: true,
+      easing: (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
+    };
+    if (is3D) {
+      options.pitch = 60;
+      options.bearing = 30;
+    }
+
+    map.flyTo(options);
+  }
+
+  snapTo(coordinates: [number, number], zoomLevel: number) {
+    const map = this.client.getMap();
+    if (!map) {
+      throw new Error(
+        "USER: Map wasn't initialized properly. Thrown from snapTo function.",
+      );
+    }
+
+    const options = {
+      center: coordinates,
+      zoom: zoomLevel,
+      pitch: 0,
+      bearing: 0,
+      duration: 2000,
+      essential: true,
+      easing: (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
+    };
+
+    map.jumpTo(options);
+  }
 }
 
 // Create a singleton instance of the Mapbox client
-const mapboxClient = new mapboxClientImpl(
-	process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "",
-	"https://api.mapbox.com/geocoding/v5/mapbox.places/",
+const mapboxClient = MapboxClientImpl.getInstance(
+  process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "",
 );
 
 export default mapboxClient;
