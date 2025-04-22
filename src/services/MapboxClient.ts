@@ -32,6 +32,7 @@ class mapboxClientImpl implements mapboxClient {
 	private geocoder?: MapboxGeocoder;
 	private watchID?: number;
 	private currMarker: mapboxgl.Marker | null = null;
+	private eventMarkers: [mapboxgl.Marker | null];
 	// TODO:
 	// rate limiter
 	// query options
@@ -64,6 +65,8 @@ class mapboxClientImpl implements mapboxClient {
 			bbox: [-122.07238, 36.98053, -122.04699, 37.00577],
 			countries: "US",
 		});
+
+		this.eventMarkers = [];
 	}
 
 	destroy() {
@@ -143,6 +146,21 @@ class mapboxClientImpl implements mapboxClient {
 			// Handle here also being able to not get user perms
 			console.error("Geolocation isn't set-up for this platform yet.");
 		}
+	}
+
+	addEventMarker(coordinates: [number, number]): void {
+		if (!this.map)
+			throw new Error(
+				"Map instance isn't initialized. Caught from func addEventMarker",
+			);
+
+		// newEventMarker: mapboxgl.Marker = 
+		this.eventMarkers.push(new mapboxgl.Marker({
+			color: "#000000",
+			draggable: false,
+		})
+			.setLngLat(coordinates)
+			.addTo(this.map));
 	}
 
 	addMarker(coordinates: [number, number]): void {
