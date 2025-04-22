@@ -19,7 +19,9 @@ const MapView: React.FC<any[]> = (events_v0) => {
 	>(null);
 
 	useEffect(() => {
-	    mapboxClient.eventService.addEventMarker([events_v0["data"][0]["longitude"], events_v0["data"][0]["latitude"]]);
+		for (const row of events_v0["data"]) {
+			mapboxClient.eventService.addEventMarker([row["longitude"], row["latitude"]]);
+		}
 	 }, []);
 
 	useEffect(() => {
