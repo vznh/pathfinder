@@ -138,7 +138,7 @@ class EventServiceImpl implements EventService {
   }
 
   addEventMarker(coordinates: [number, number]): void {
-		if (!this.map)
+		if (!this.client.getMap())
 			throw new Error(
 				"Map instance isn't initialized. Caught from func addEventMarker",
 			);
@@ -149,7 +149,7 @@ class EventServiceImpl implements EventService {
 			draggable: false,
 		})
 			.setLngLat(coordinates)
-			.addTo(this.map));
+			.addTo(this.client.map));
 	}
 
   removeAnyMarkers(): void {
