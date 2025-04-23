@@ -24,7 +24,7 @@ const Homepage: NextPage<HomepageProps> = ({ events_v0 }) => {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createClient(context)
-  const { data: events_v0 } = await supabase.from("events_v1").select();
+  const { data: events_v0 } = await supabase.from("events_v0").select();
   return {
     props: {
       events_v0: events_v0,
