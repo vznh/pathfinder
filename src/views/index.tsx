@@ -24,16 +24,16 @@ const MapView: React.FC = () => {
 				const coordinates = e.lngLat.toArray() as [number, number];
 				setSelectedWaypoint(coordinates);
 
-				mapboxClient.zoomTo(coordinates, 18, true);
-				mapboxClient.addMarker(coordinates);
+				mapboxClient.camera.zoomTo(coordinates, 18, true);
+				mapboxClient.events.addBaseMarker(coordinates);
 				setWaypointMode(false);
 			};
 
-			mapboxClient.get().once("click", handleClick);
+			mapboxClient.getMap().once("click", handleClick);
 
 			return () => {
 				document.body.style.cursor = "";
-				mapboxClient.get().off("click", handleClick);
+				mapboxClient.getMap().off("click", handleClick);
 			};
 		} else {
 			document.body.style.cursor = "";
@@ -57,6 +57,11 @@ const MapView: React.FC = () => {
 		}
 	};
 
+	const createEvent = () => {
+	  // perform api call here, will just print to cosnole for now
+    console.log("* Attempted to create event");
+	}
+
 	return (
 		<div>
 			<div className="absolute inset-0">
@@ -68,7 +73,7 @@ const MapView: React.FC = () => {
 					icon={<SewingPinFilledIcon className="w-5 h-5" />}
 					position={"bottom-right"}
 					onClick={() =>
-						mapboxClient.zoomTo(
+						mapboxClient.camera.zoomTo(
 							[-122.06441040634448, 36.99225113910849],
 							20,
 							true,
@@ -79,12 +84,11 @@ const MapView: React.FC = () => {
 					icon={<ThickArrowUpIcon className="w-5 h-5" />}
 					position={"top-right"}
 					onClick={() => {
-						mapboxClient.getUserLocation((coords) => {
-							mapboxClient.zoomTo(
+						mapboxClient.geolocation.getUserLocation((coords) => {
+							mapboxClient.camera.zoomTo(
 								[coords.longitude, coords.latitude],
 								20,
 								false,
-								true, // snap
 							);
 						});
 					}}
@@ -93,8 +97,8 @@ const MapView: React.FC = () => {
 					icon={<PlusCircledIcon className="w-5 h-5" />}
 					position={"top-right"}
 					onClick={() => {
-						mapboxClient.getUserLocation((coords) => {
-							mapboxClient.zoomTo(
+						mapboxClient.geolocation.getUserLocation((coords) => {
+							mapboxClient.camera.zoomTo(
 								[coords.longitude, coords.latitude],
 								20,
 								false,
@@ -109,6 +113,7 @@ const MapView: React.FC = () => {
 					onClick={() => setWaypointMode(!waypointMode)}
 				/>
 
+				{ /* this needs to go */}
 				{selectedWaypoint && (
 					<div className="absolute bottom-20 left-4 bg-white p-4 rounded-lg shadow-lg">
 						<div className="flex justify-between items-center mb-2">
@@ -117,7 +122,7 @@ const MapView: React.FC = () => {
 								className="text-gray-500 hover:text-gray-700"
 								onClick={() => {
 									setSelectedWaypoint(null);
-									mapboxClient.removeMarker();
+									mapboxClient.events.removeAnyMarkers();
 								}}
 							>
 								<Cross2Icon className="w-4 h-4" />
@@ -140,6 +145,12 @@ const MapView: React.FC = () => {
 							>
 								Apple Maps
 							</button>
+              <button
+                onClick={createEvent}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
+              >
+                Create Event
+              </button>
 						</div>
 					</div>
 				)}
