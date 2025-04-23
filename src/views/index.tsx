@@ -2,6 +2,7 @@ import Map from "@/components/Map";
 // views/
 import { Button } from "@/components/reusable/Button";
 import mapboxClient from "@/services/MapboxClient";
+import { createClient } from '@/supabase/component';
 import {
 	Cross2Icon,
 	PlusCircledIcon,
@@ -9,13 +10,28 @@ import {
 	ThickArrowUpIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
+import { EventDataArray } from "@/models/types";
 
-const MapView: React.FC = () => {
+interface MapViewProps {
+  events: EventDataArray;
+}
+
+const MapView: React.FC<MapViewProps> = ({ events }) => {
 	// modes
 	const [waypointMode, setWaypointMode] = useState(false);
 	const [selectedWaypoint, setSelectedWaypoint] = useState<
 		[number, number] | null
 	>(null);
+
+	useEffect(() => {
+     if (!events || events.length === 0) return;
+
+     for (const row of events) {
+       if (row && typeof row.longitude === 'number' && typeof row.latitude === 'number') {
+         mapboxClient.events.addEventMarker([row.longitude, row.latitude]);
+       }
+     }
+   }, [events]);
 
 	useEffect(() => {
 		if (waypointMode) {
@@ -39,6 +55,7 @@ const MapView: React.FC = () => {
 			document.body.style.cursor = "";
 		}
 	}, [waypointMode]);
+
 
 	const openInGoogleMaps = () => {
 		if (selectedWaypoint) {
