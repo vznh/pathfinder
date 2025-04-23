@@ -22,6 +22,7 @@ interface NavigationService {}
 
 interface EventService {
   addBaseMarker(coords: [number, number]): void;
+  addEventMarker(coords: [number, number]): void;
   removeAnyMarkers(): void;
 }
 
@@ -116,7 +117,7 @@ class EventServiceImpl implements EventService {
 
   constructor(client: MapboxClient) {
     this.client = client;
-    this.eventMarkers = [];
+    this.eventMarkers = [null];
   }
 
   addBaseMarker(coords: [number, number]): void {
@@ -143,13 +144,13 @@ class EventServiceImpl implements EventService {
 				"Map instance isn't initialized. Caught from func addEventMarker",
 			);
 
-		// newEventMarker: mapboxgl.Marker = 
+		// newEventMarker: mapboxgl.Marker =
 		this.eventMarkers.push(new mapboxgl.Marker({
 			color: "#000000",
 			draggable: false,
 		})
 			.setLngLat(coordinates)
-			.addTo(this.client.map));
+			.addTo(this.client.getMap()));
 	}
 
   removeAnyMarkers(): void {

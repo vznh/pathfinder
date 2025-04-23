@@ -2,7 +2,7 @@ import Map from "@/components/Map";
 // views/
 import { Button } from "@/components/reusable/Button";
 import mapboxClient from "@/services/MapboxClient";
-import { createClient } from '@/utils/supabase/component'
+import { createClient } from '@/supabase/component';
 import {
 	Cross2Icon,
 	PlusCircledIcon,
@@ -10,8 +10,13 @@ import {
 	ThickArrowUpIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
+import { EventDataArray } from "@/models/types";
 
-const MapView: React.FC<any[]> = (events_v0) => {
+interface MapViewProps {
+  events: EventDataArray;
+}
+
+const MapView: React.FC<MapViewProps> = ({ events }) => {
 	// modes
 	const [waypointMode, setWaypointMode] = useState(false);
 	const [selectedWaypoint, setSelectedWaypoint] = useState<
@@ -19,11 +24,14 @@ const MapView: React.FC<any[]> = (events_v0) => {
 	>(null);
 
 	useEffect(() => {
-		if (!events_v0?.data) return;
-		for (const row of events_v0["data"]) {
-			mapboxClient.eventService.addEventMarker([row["longitude"], row["latitude"]]);
-		}
-	 }, [events_v0]);
+     if (!events || events.length === 0) return;
+
+     for (const row of events) {
+       if (row && typeof row.longitude === 'number' && typeof row.latitude === 'number') {
+         mapboxClient.events.addEventMarker([row.longitude, row.latitude]);
+       }
+     }
+   }, [events]);
 
 	useEffect(() => {
 		if (waypointMode) {
