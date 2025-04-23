@@ -19,13 +19,6 @@ const Homepage: NextPage = (props) => {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createClient(context)
-  const {data: { user }, error,} = await supabase.auth.getUser()
-  if (error || !user) {
-    return {props: {
-        events_v0: [],
-      }
-    }
-  }
   const { data: events_v0 } = await supabase.from("events_v0").select();
   return {
     props: {
