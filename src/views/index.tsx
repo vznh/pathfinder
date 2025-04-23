@@ -19,10 +19,11 @@ const MapView: React.FC<any[]> = (events_v0) => {
 	>(null);
 
 	useEffect(() => {
+		if (!events_v0?.data) return;
 		for (const row of events_v0["data"]) {
 			mapboxClient.eventService.addEventMarker([row["longitude"], row["latitude"]]);
 		}
-	 }, []);
+	 }, [events_v0]);
 
 	useEffect(() => {
 		if (waypointMode) {
