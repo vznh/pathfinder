@@ -3,14 +3,11 @@ import { NextPage } from "next";
 import type { User } from '@supabase/supabase-js'
 import type { GetServerSidePropsContext } from 'next'
 import { createClient } from '@/supabase/server-props'
-import { type EventDataArray } from "@/models/types";
+import { type Database } from "@/models/supabase_types";
 import MapView from "@/views";
 
-interface HomepageProps {
-  events_v0: EventDataArray;
-}
 
-const Homepage: NextPage<HomepageProps> = ({ events_v0 }) => {
+const Homepage: NextPage<{ events_v0: Database['public']['Tables']['events_v0']['Row'][] }> = ({ events_v0 }) => {
   return (
     <div>
       <Head>

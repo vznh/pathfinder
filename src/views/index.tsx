@@ -2,7 +2,7 @@ import Map from "@/components/Map";
 // views/
 import { Button } from "@/components/reusable/Button";
 import mapboxClient from "@/services/MapboxClient";
-import { createClient } from '@/supabase/component';
+import createClient from '@/supabase/api';
 import {
 	Cross2Icon,
 	PlusCircledIcon,
@@ -10,10 +10,10 @@ import {
 	ThickArrowUpIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
-import { EventDataArray } from "@/models/types";
+import { Database } from "@/models/supabase_types";
 
 interface MapViewProps {
-  events: EventDataArray;
+  events: Database['public']['Tables']['events_v0']['Row'][];
 }
 
 const MapView: React.FC<MapViewProps> = ({ events }) => {
@@ -76,7 +76,8 @@ const MapView: React.FC<MapViewProps> = ({ events }) => {
 
 	const createEvent = () => {
 	  // perform api call here, will just print to cosnole for now
-    console.log("* Attempted to create event");
+		// const supabase = createClient();
+    	console.log("* Attempted to create event");
 	}
 
 	return (
