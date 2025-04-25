@@ -43,14 +43,3 @@ interface GeoJSON {
 	type: "FeatureCollection";
 	features: Feature[];
 }
-
-export interface EventDataObject {
-  id: string;
-  created_at: string;
-  event: string;
-  latitude: number;
-  longitude: number;
-  user_id: string | null;
-}
-
-export type EventDataArray = EventDataObject[];
