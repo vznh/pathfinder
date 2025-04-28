@@ -120,9 +120,9 @@ onClick={toggleDropdown}
 />
 
 {/* Dropdown Menu */}
-<div className="relative top-4 left-4 z-20 dropdown-container">
+<div className="absolute top-4 left-4 dropdown-container">
 {isDropdownOpen && (
-	<div className="absolute top-16 left-0 bg-transparent rounded-md flex flex-col gap-2">
+	<div className="relative top-4 left-4 bottom-24 bg-transparent">
 	<Button
 		icon={<ClockIcon className="w-5 h-5" />}
 		isStatic={true}
