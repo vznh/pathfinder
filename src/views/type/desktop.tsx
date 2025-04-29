@@ -11,6 +11,7 @@ import {
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { Database } from "@/models/supabase_types";
+import EmailModalButton from "@/components/specific/EmailModal";
 
 interface MapViewProps {
   events: Database["public"]["Tables"]["events_v0"]["Row"][];
@@ -91,32 +92,11 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
       </div>
 
       <div className="overlay-wrapper inset-0 z-10">
-        <Button
-          icon={<SewingPinFilledIcon className="w-5 h-5" />}
-          position={"bottom-right"}
-          onClick={() =>
-            mapboxClient.camera.zoomTo(
-              [-122.06441040634448, 36.99225113910849],
-              20,
-              true,
-            )
-          }
-        />
+        <div className="absolute top-2 right-2 z-10">
+          <EmailModalButton />
+        </div>
         <Button
           icon={<ThickArrowUpIcon className="w-5 h-5" />}
-          position={"top-right"}
-          onClick={() => {
-            mapboxClient.geolocation.getUserLocation((coords) => {
-              mapboxClient.camera.zoomTo(
-                [coords.longitude, coords.latitude],
-                20,
-                false,
-              );
-            });
-          }}
-        />
-        <Button
-          icon={<PlusCircledIcon className="w-5 h-5" />}
           position={"top-right"}
           onClick={() => {
             mapboxClient.geolocation.getUserLocation((coords) => {
