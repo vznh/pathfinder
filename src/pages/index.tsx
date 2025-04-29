@@ -14,7 +14,7 @@ const Homepage: NextPage<{
         <title>⌘</title>
       </Head>
       {/* Main view will go here */}
-      <MapView events={events_v0} />
+      <MapView events_v0={events_v0} />
     </div>
   );
 };
