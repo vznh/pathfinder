@@ -4,7 +4,7 @@ import { Button } from "../prebuilt/Button";
 
 const EmailModalButton = () => {
   return (
-    <Button variant={"destructive"}>
+    <Button variant={"notice"} size="lg" asChild>
       <Link href="mailto:pathfinder.cse115a@gmail.com" target="_blank">
         📧 Register your organization
       </Link>

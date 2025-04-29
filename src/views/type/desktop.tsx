@@ -5,7 +5,6 @@ import mapboxClient from "@/services/MapboxClient";
 import {
   Cross2Icon,
   PlusCircledIcon,
-  SewingPinFilledIcon,
   ThickArrowUpIcon,
   PersonIcon,
 } from "@radix-ui/react-icons";
@@ -92,7 +91,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
       </div>
 
       <div className="overlay-wrapper inset-0 z-10">
-        <div className="absolute top-2 right-2 z-10">
+        <div className="absolute bottom-4 right-4 z-10">
           <EmailModalButton />
         </div>
         <Button
