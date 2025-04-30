@@ -3,16 +3,16 @@ import Map from "@/components/Map";
 import { Button } from "@/components/reusable/Button";
 import mapboxClient from "@/services/MapboxClient";
 import {
-Cross2Icon,
-PaperPlaneIcon,
-PlusCircledIcon,
-SewingPinFilledIcon,
-ClockIcon,
-MixerHorizontalIcon,
-DotsVerticalIcon,
-PersonIcon
+  Cross2Icon,
+  PaperPlaneIcon,
+  PlusCircledIcon,
+  SewingPinFilledIcon,
+  ClockIcon,
+  MixerHorizontalIcon,
+  DotsVerticalIcon,
+  PersonIcon
 } from "@radix-ui/react-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Database } from "@/models/supabase_types";
 
 interface MapViewProps {
@@ -20,159 +20,172 @@ interface MapViewProps {
 }
 
 const DesktopView: React.FC<MapViewProps> = ({ events }) => {
-  // modes
   const [waypointMode, setWaypointMode] = useState(false);
-  const [selectedWaypoint, setSelectedWaypoint] = useState<
-    [number, number] | null
-  >(null);
+  const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showAuthTest, setShowAuthTest] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  useEffect(() => {
-    if (!events || events.length === 0) return;
+  // refs for click-away
+  const toggleWrapperRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // add markers for existing events
+  useEffect(() => {
+    if (!events?.length) return;
     for (const row of events) {
-      if (
-        row &&
-        typeof row.longitude === "number" &&
-        typeof row.latitude === "number"
-      ) {
+      if (typeof row.longitude === "number" && typeof row.latitude === "number") {
         mapboxClient.events.addEventMarker([row.longitude, row.latitude]);
       }
     }
   }, [events]);
 
+  // waypoint click handler
   useEffect(() => {
-    if (waypointMode) {
-      document.body.style.cursor = "crosshair";
-      const handleClick = (e: mapboxgl.MapMouseEvent) => {
-        const coordinates = e.lngLat.toArray() as [number, number];
-        setSelectedWaypoint(coordinates);
-
-        mapboxClient.camera.zoomTo(coordinates, 18, true);
-        mapboxClient.events.addBaseMarker(coordinates);
-        setWaypointMode(false);
-      };
-
-      mapboxClient.getMap().once("click", handleClick);
-
-      return () => {
-        document.body.style.cursor = "";
-        mapboxClient.getMap().off("click", handleClick);
-      };
-    } else {
+    if (!waypointMode) {
       document.body.style.cursor = "";
+      return;
     }
+    document.body.style.cursor = "crosshair";
+    const handleClick = (e: mapboxgl.MapMouseEvent) => {
+      const coords = e.lngLat.toArray() as [number, number];
+      setSelectedWaypoint(coords);
+      mapboxClient.camera.zoomTo(coords, 18, true);
+      mapboxClient.events.addBaseMarker(coords);
+      setWaypointMode(false);
+    };
+    mapboxClient.getMap().once("click", handleClick);
+    return () => {
+      document.body.style.cursor = "";
+      mapboxClient.getMap().off("click", handleClick);
+    };
   }, [waypointMode]);
 
+  // close dropdown on outside clicks
+  useEffect(() => {
+    const onClickOutside = (e: MouseEvent) => {
+      const tgt = e.target as Node;
+      if (
+        isDropdownOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(tgt) &&
+        toggleWrapperRef.current &&
+        !toggleWrapperRef.current.contains(tgt)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [isDropdownOpen]);
+
   const openInGoogleMaps = () => {
-    if (selectedWaypoint) {
-      const [lng, lat] = selectedWaypoint;
-      window.open(
-        `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
-        "_blank",
-      );
-    }
+    if (!selectedWaypoint) return;
+    const [lng, lat] = selectedWaypoint;
+    window.open(
+      `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+      "_blank"
+    );
   };
 
   const openInAppleMaps = () => {
-    if (selectedWaypoint) {
-      const [lng, lat] = selectedWaypoint;
-      window.open(`https://maps.apple.com/?q=${lat},${lng}`, "_blank");
-    }
+    if (!selectedWaypoint) return;
+    const [lng, lat] = selectedWaypoint;
+    window.open(`https://maps.apple.com/?q=${lat},${lng}`, "_blank");
   };
 
   const createEvent = () => {
-    // perform api call here, will just print to cosnole for now
-    // const supabase = createClient();
     console.log("* Attempted to create event");
   };
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-    };
-    
+  const toggleDropdown = () => setIsDropdownOpen((v) => !v);
 
   return (
-    <div>
+    <div className="relative w-full h-full">
       <div className="absolute inset-0">
-      <Map />
+        <Map />
       </div>
-    
+
       <div className="overlay-wrapper">
-      <Button
-        icon={
-        <PaperPlaneIcon
-          className="w-5 h-5"
-          style={{ transform: "rotate(270deg)" }}
-        />
-        }
-        position="bottom-right"
-        onClick={() => {
-        mapboxClient.geolocation.getUserLocation((coords) => {
-          mapboxClient.camera.zoomTo(
-          [coords.longitude, coords.latitude],
-          20,
-          false,
-          );
-        });
-        }}
-      />
-    
-    <div className="absolute top-2 left-2">
-      <Button
-      icon={<DotsVerticalIcon className="w-5 h-5" />}
-    position="top-left"
-    onClick={toggleDropdown}
-    />
-    
-    {/* Dropdown Menu */}
-    <div className="absolute top-4 left-4 dropdown-container">
-    {isDropdownOpen && (
-      <div className="relative top-4 left-4 bottom-24 bg-transparent">
-      <Button
-        icon={<ClockIcon className="w-5 h-5" />}
-        isStatic={true}
-        onClick={() => console.log("History clicked")}
-        className="bg-white shadow-md hover:bg-gray-50"
-      />
-      <Button
-        icon={<MixerHorizontalIcon className="w-5 h-5" />}
-        isStatic={true}
-        onClick={() => console.log("Filters clicked")}
-        className="bg-white shadow-md hover:bg-gray-50"
-      />
-      <Button
-        icon={<PlusCircledIcon className="w-5 h-5" />}
-        isStatic={true}
-        onClick={() => {
-          mapboxClient.geolocation.getUserLocation((coords) => {
-            mapboxClient.camera.zoomTo(
-              [coords.longitude, coords.latitude],
-              20,
-              false,
-            );
-          });
-        }}
-        className="bg-white shadow-md hover:bg-gray-50"
-      />
-      <Button
-        icon={<SewingPinFilledIcon className="w-5 h-5" />}
-        isStatic={true}
-        onClick={() => console.log("Pins clicked")}
-        className="bg-white shadow-md hover:bg-gray-50"
-      />
-      </div>
-    )}
-    </div>
-    </div>
         <Button
-          icon={<PersonIcon className="w-5 h-5" />}
-          position={"top-right"}
-          onClick={() => setShowAuthTest(!showAuthTest)}
+          icon={
+            <PaperPlaneIcon
+              className="w-5 h-5"
+              style={{ transform: "rotate(270deg)" }}
+            />
+          }
+          position="bottom-right"
+          onClick={() =>
+            mapboxClient.geolocation.getUserLocation((coords) => {
+              mapboxClient.camera.zoomTo(
+                [coords.longitude, coords.latitude],
+                20,
+                false
+              );
+            })
+          }
         />
 
-        {/* this needs to go */}
+        {/* Dropdown toggle + menu */}
+        <div className="absolute top-2 left-2">
+          {/* wrap the Button so we can attach a ref here */}
+          <div ref={toggleWrapperRef}>
+            <Button
+              icon={<DotsVerticalIcon className="w-5 h-5" />}
+              position="top-left"
+              onClick={toggleDropdown}
+            />
+          </div>
+
+          <div
+            ref={dropdownRef}
+            className="absolute top-4 left-4 dropdown-container"
+          >
+            {isDropdownOpen && (
+              <div className="relative top-4 left-4 bottom-24 bg-transparent">
+                <Button
+                  icon={<ClockIcon className="w-5 h-5" />}
+                  isStatic
+                  onClick={() => console.log("History clicked")}
+                  className="bg-white shadow-md hover:bg-gray-50"
+                />
+                <Button
+                  icon={<MixerHorizontalIcon className="w-5 h-5" />}
+                  isStatic
+                  onClick={() => console.log("Filters clicked")}
+                  className="bg-white shadow-md hover:bg-gray-50"
+                />
+                <Button
+                  icon={<PlusCircledIcon className="w-5 h-5" />}
+                  isStatic
+                  onClick={() =>
+                    mapboxClient.geolocation.getUserLocation((coords) =>
+                      mapboxClient.camera.zoomTo(
+                        [coords.longitude, coords.latitude],
+                        20,
+                        false
+                      )
+                    )
+                  }
+                  className="bg-white shadow-md hover:bg-gray-50"
+                />
+                <Button
+                  icon={<SewingPinFilledIcon className="w-5 h-5" />}
+                  isStatic
+                  onClick={() => console.log("Pins clicked")}
+                  className="bg-white shadow-md hover:bg-gray-50"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Button
+          icon={<PersonIcon className="w-5 h-5" />}
+          position="top-right"
+          onClick={() => setShowAuthTest((v) => !v)}
+        />
+
+        {/* Waypoint details */}
         {selectedWaypoint && (
           <div className="absolute bottom-20 left-4 bg-white p-4 rounded-lg shadow-lg">
             <div className="flex justify-between items-center mb-2">
@@ -214,7 +227,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
           </div>
         )}
 
-        {/* Auth Test Overlay */}
+        {/* Auth Test */}
         {showAuthTest && (
           <div className="absolute top-20 left-4 bg-white p-4 rounded-lg shadow-lg max-w-md">
             <div className="flex justify-between items-center mb-4">
