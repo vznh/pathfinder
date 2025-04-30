@@ -157,22 +157,19 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
                 <Button
                   icon={<PlusCircledIcon className="w-5 h-5" />}
                   isStatic
-                  onClick={() =>
-                    mapboxClient.geolocation.getUserLocation((coords) =>
-                      mapboxClient.camera.zoomTo(
-                        [coords.longitude, coords.latitude],
-                        20,
-                        false
-                      )
-                    )
-                  }
-                  className="bg-white shadow-md hover:bg-gray-50"
+                  className={waypointMode ? "bg-blue-200" : ""}
+                  onClick={() => setWaypointMode(!waypointMode)}
                 />
                 <Button
                   icon={<SewingPinFilledIcon className="w-5 h-5" />}
                   isStatic
-                  onClick={() => console.log("Pins clicked")}
-                  className="bg-white shadow-md hover:bg-gray-50"
+                  onClick={() =>
+                    mapboxClient.camera.zoomTo(
+                      [-122.06441040634448, 36.99225113910849],
+                      20,
+                      true,
+                    )
+                  }
                 />
               </div>
             )}
@@ -185,7 +182,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
           onClick={() => setShowAuthTest((v) => !v)}
         />
 
-        {/* Waypoint details */}
+        {/* this needs to go */}
         {selectedWaypoint && (
           <div className="absolute bottom-20 left-4 bg-white p-4 rounded-lg shadow-lg">
             <div className="flex justify-between items-center mb-2">
@@ -227,7 +224,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
           </div>
         )}
 
-        {/* Auth Test */}
+        {/* Auth Test Overlay */}
         {showAuthTest && (
           <div className="absolute top-20 left-4 bg-white p-4 rounded-lg shadow-lg max-w-md">
             <div className="flex justify-between items-center mb-4">
