@@ -3,11 +3,14 @@ import Map from "@/components/Map";
 import { Button } from "@/components/reusable/Button";
 import mapboxClient from "@/services/MapboxClient";
 import {
-  Cross2Icon,
-  PlusCircledIcon,
-  SewingPinFilledIcon,
-  ThickArrowUpIcon,
-  PersonIcon,
+Cross2Icon,
+PaperPlaneIcon,
+PlusCircledIcon,
+SewingPinFilledIcon,
+ClockIcon,
+MixerHorizontalIcon,
+DotsVerticalIcon,
+PersonIcon
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { Database } from "@/models/supabase_types";
@@ -23,6 +26,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     [number, number] | null
   >(null);
   const [showAuthTest, setShowAuthTest] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (!events || events.length === 0) return;
@@ -84,59 +88,87 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     console.log("* Attempted to create event");
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+    };
+    
+
   return (
     <div>
       <div className="absolute inset-0">
-        <Map />
+      <Map />
       </div>
-
-      <div className="overlay-wrapper inset-0 z-10">
-        <Button
-          icon={<SewingPinFilledIcon className="w-5 h-5" />}
-          position={"bottom-right"}
-          onClick={() =>
+    
+      <div className="overlay-wrapper">
+      <Button
+        icon={
+        <PaperPlaneIcon
+          className="w-5 h-5"
+          style={{ transform: "rotate(270deg)" }}
+        />
+        }
+        position="bottom-right"
+        onClick={() => {
+        mapboxClient.geolocation.getUserLocation((coords) => {
+          mapboxClient.camera.zoomTo(
+          [coords.longitude, coords.latitude],
+          20,
+          false,
+          );
+        });
+        }}
+      />
+    
+    <div className="absolute top-2 left-2">
+      <Button
+      icon={<DotsVerticalIcon className="w-5 h-5" />}
+    position="top-left"
+    onClick={toggleDropdown}
+    />
+    
+    {/* Dropdown Menu */}
+    <div className="absolute top-4 left-4 dropdown-container">
+    {isDropdownOpen && (
+      <div className="relative top-4 left-4 bottom-24 bg-transparent">
+      <Button
+        icon={<ClockIcon className="w-5 h-5" />}
+        isStatic={true}
+        onClick={() => console.log("History clicked")}
+        className="bg-white shadow-md hover:bg-gray-50"
+      />
+      <Button
+        icon={<MixerHorizontalIcon className="w-5 h-5" />}
+        isStatic={true}
+        onClick={() => console.log("Filters clicked")}
+        className="bg-white shadow-md hover:bg-gray-50"
+      />
+      <Button
+        icon={<PlusCircledIcon className="w-5 h-5" />}
+        isStatic={true}
+        onClick={() => {
+          mapboxClient.geolocation.getUserLocation((coords) => {
             mapboxClient.camera.zoomTo(
-              [-122.06441040634448, 36.99225113910849],
+              [coords.longitude, coords.latitude],
               20,
-              true,
-            )
-          }
-        />
-        <Button
-          icon={<ThickArrowUpIcon className="w-5 h-5" />}
-          position={"top-right"}
-          onClick={() => {
-            mapboxClient.geolocation.getUserLocation((coords) => {
-              mapboxClient.camera.zoomTo(
-                [coords.longitude, coords.latitude],
-                20,
-                false,
-              );
-            });
-          }}
-        />
-        <Button
-          icon={<PlusCircledIcon className="w-5 h-5" />}
-          position={"top-right"}
-          onClick={() => {
-            mapboxClient.geolocation.getUserLocation((coords) => {
-              mapboxClient.camera.zoomTo(
-                [coords.longitude, coords.latitude],
-                20,
-                false,
-              );
-            });
-          }}
-        />
-        <Button
-          icon={<PlusCircledIcon className="w-5 h-5" />}
-          position={"bottom-left"}
-          className={waypointMode ? "bg-blue-200" : ""}
-          onClick={() => setWaypointMode(!waypointMode)}
-        />
+              false,
+            );
+          });
+        }}
+        className="bg-white shadow-md hover:bg-gray-50"
+      />
+      <Button
+        icon={<SewingPinFilledIcon className="w-5 h-5" />}
+        isStatic={true}
+        onClick={() => console.log("Pins clicked")}
+        className="bg-white shadow-md hover:bg-gray-50"
+      />
+      </div>
+    )}
+    </div>
+    </div>
         <Button
           icon={<PersonIcon className="w-5 h-5" />}
-          position={"top-left"}
+          position={"top-right"}
           onClick={() => setShowAuthTest(!showAuthTest)}
         />
 
