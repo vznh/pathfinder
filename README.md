@@ -48,6 +48,10 @@ Every-time that you have a minor change, `git commit` it so that Biome can lint,
 
 Then once you're finalized, create a PR with the Linear issue name using the command (CTRL/Command + Shift + .) and what you've changed.
 
+## Debloating
+Branches are constantly made. Whenever you check `git branch -r`, you'll find numerous amounts of branches that haven't been evicted on your local.
+Run `git fetch --prune` in order to evict branches that are deprecated, unused, or (most likely) deleted.
+
 ## Docs
 Documentation is required for feature changes, and existing should be modified for hotfixes and bug fixes.
 
