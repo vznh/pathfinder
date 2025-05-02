@@ -1,6 +1,8 @@
 // views/type/desktop.tsx
 import Map from "@/components/Map";
 import { Button } from "@/components/reusable/Button";
+import WaypointPopup from "@/components/WaypointPopup";
+import EventForm from "@/components/EventForm";
 import mapboxClient from "@/services/MapboxClient";
 import {
   Cross2Icon,
@@ -24,6 +26,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
   const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showAuthTest, setShowAuthTest] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [showEventForm, setShowEventForm] = useState(false);
 
   // refs for click-away
   const toggleWrapperRef = useRef<HTMLDivElement>(null);
@@ -182,47 +185,23 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
           onClick={() => setShowAuthTest((v) => !v)}
         />
 
-        {/* this needs to go */}
-        {selectedWaypoint && (
-          <div className="absolute bottom-20 left-4 bg-white p-4 rounded-lg shadow-lg">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold">Waypoint Selected</h3>
-              <button
-                className="text-gray-500 hover:text-gray-700"
-                onClick={() => {
-                  setSelectedWaypoint(null);
-                  mapboxClient.events.removeAnyMarkers();
-                }}
-              >
-                <Cross2Icon className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="text-sm mb-3">
-              Coordinates: {selectedWaypoint[1].toFixed(6)},{" "}
-              {selectedWaypoint[0].toFixed(6)}
-            </p>
-            <div className="flex space-x-2">
-              <button
-                onClick={openInGoogleMaps}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Google Maps
-              </button>
-              <button
-                onClick={openInAppleMaps}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Apple Maps
-              </button>
-              <button
-                onClick={createEvent}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Create Event
-              </button>
-            </div>
-          </div>
-        )}
+				{selectedWaypoint && !showEventForm && (
+				<WaypointPopup
+					coordinates={selectedWaypoint}
+					onCreateEvent={() => setShowEventForm(true)}
+					onClose={() => {
+					setSelectedWaypoint(null);
+					mapboxClient.events.removeAnyMarkers();
+					}}
+				/>
+				)}
+				{selectedWaypoint && showEventForm && (
+				<EventForm
+					coordinates={selectedWaypoint}
+					onSubmit={createEvent}
+					onCancel={() => setShowEventForm(false)}
+				/>
+				)}
 
         {/* Auth Test Overlay */}
         {showAuthTest && (
