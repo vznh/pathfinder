@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { Database } from "@/models/supabase_types";
 import EmailModalButton from "@/components/specific/EmailModal";
+import { createClient } from "@/supabase/component";
 
 interface MapViewProps {
   events: Database["public"]["Tables"]["events_v0"]["Row"][];
@@ -23,6 +24,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     [number, number] | null
   >(null);
   const [showAuthTest, setShowAuthTest] = useState(false);
+  const supabase = createClient();
 
   useEffect(() => {
     if (!events || events.length === 0) return;
@@ -78,10 +80,33 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     }
   };
 
-  const createEvent = () => {
+  const createEvent = async () => {
     // perform api call here, will just print to cosnole for now
-    // const supabase = createClient();
-    console.log("* Attempted to create event");
+    if (selectedWaypoint) {
+      const [lng, lat] = selectedWaypoint;
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !user) {
+        console.error('User not found or error:', userError)
+      }
+      
+      else {
+        const { error: insertError } = await supabase
+          .from('events_v0')
+          .insert({
+            user_id: user.id,
+            event: 'Clicked Event', // add event name's here later
+            latitude: lat,
+            longitude: lng,
+          })
+
+        if (insertError) {
+          console.error('Insert error:', insertError)
+        } else {
+          console.log('Row inserted successfully')
+        }
+      }
+    }
   };
 
   return (
