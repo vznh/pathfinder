@@ -13,6 +13,8 @@ import { Database } from "@/models/supabase_types";
 import EmailModalButton from "@/components/specific/EmailModal";
 import { createClient } from "@/supabase/component";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import WaypointPopup from "@/components/specific/WaypointPopup";
+import EventForm from "@/components/specific/EventForm";
 
 interface MapViewProps {
   events: Database["public"]["Tables"]["events_v0"]["Row"][];
@@ -24,6 +26,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
   const [selectedWaypoint, setSelectedWaypoint] = useState<
     [number, number] | null
   >(null);
+  const [showEventForm, setShowEventForm] = useState(false);
   const [showAuthTest, setShowAuthTest] = useState(false);
   const supabase = createClient();
 
@@ -81,6 +84,17 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     }
   };
 
+  const handleWaypointModeToggle = () => {
+    setWaypointMode(!waypointMode);
+    if (selectedWaypoint) {
+      setSelectedWaypoint(null);
+      setShowEventForm(false);
+    }
+  };
+
+  const handleCreateEvent = async () => {
+    console.log("created event")
+  }
   const createEvent = async () => {
     // perform api call here, will just print to cosnole for now
     if (selectedWaypoint) {
@@ -110,13 +124,42 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     }
   };
 
+
+  const handleClosePopup = () => {
+    setSelectedWaypoint(null);
+    setShowEventForm(false);
+  };
+
+  const handleOpenEventForm = () => {
+    setShowEventForm(true);
+  };
+
   return (
     <div>
       <div className="absolute inset-0">
         <Map />
       </div>
 
-      <DashboardLayout development={true} />
+      {selectedWaypoint && !showEventForm && (
+        <WaypointPopup
+          coordinates={selectedWaypoint}
+          onCreateEvent={handleOpenEventForm}
+          onClose={handleClosePopup}
+        />
+      )}
+
+      {selectedWaypoint && showEventForm && (
+        <EventForm
+          coordinates={selectedWaypoint}
+          onSubmit={handleCreateEvent}
+          onCancel={handleClosePopup}
+        />
+      )}
+
+      <DashboardLayout 
+        development={true} 
+        onWaypointModeToggle={handleWaypointModeToggle}
+      />
     </div>
   );
 };

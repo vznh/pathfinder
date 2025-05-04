@@ -19,8 +19,14 @@ import {
   PaperPlaneIcon
 } from "@radix-ui/react-icons";
 
-const DashboardLayout: React.FC<{ development?: boolean }> = ({
+interface DashboardLayoutProps {
+  development?: boolean;
+  onWaypointModeToggle?: () => void;
+}
+
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   development = false,
+  onWaypointModeToggle,
 }) => {
   const borderClasses = development
     ? "border border-dashed border-gray-300"
@@ -57,6 +63,7 @@ const DashboardLayout: React.FC<{ development?: boolean }> = ({
             <button
               className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
               aria-label="Add"
+              onClick={onWaypointModeToggle}
             >
               <PlusCircledIcon className="w-5 h-5" />
             </button>
