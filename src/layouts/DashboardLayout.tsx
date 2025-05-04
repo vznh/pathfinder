@@ -1,7 +1,7 @@
 // layouts/DashboardLayout.tsx
 import type React from "react";
 import EmailModalButton from "@/components/specific/EmailModal";
-import DropdownMenu from "@/components/specific/DropdownMenu";
+import DropdownMenu from "@/components/reusable/DropDownMenu";
 import { Button } from "@/components/reusable/Button"
 import mapboxClient from "@/services/MapboxClient";
 import {
