@@ -40,7 +40,7 @@ const EmailModalButton = () => {
     <Button
       size="lg"
       onClick={copyToClipboard}
-      className="transition-all duration-200"
+      className="pointer-events-auto transition-all duration-200"
     >
       {copied ? (
         <Fragment>
