@@ -26,6 +26,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
   // Close on clicks outside
   useEffect(() => {
+    
     const onClickOutside = (e: MouseEvent) => {
       const tgt = e.target as Node;
       if (
