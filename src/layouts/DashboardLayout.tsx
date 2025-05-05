@@ -37,17 +37,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     <div className="pointer-events-none absolute inset-0 z-10 grid h-full w-full grid-cols-3 grid-rows-3">
       {/* Top row */}
       <div
-        className={`pointer-events-auto flex items-start justify-start p-4 ${borderClasses}`}
+        className={`pointer-events-none flex items-start justify-start p-4 ${borderClasses}`}
       >
         {/* Top left */}
         <DropdownMenu
-          toggleIcon={<DotsVerticalIcon className="w-5 h-5" />}
+          toggleIcon={<DotsVerticalIcon className="w-5 h-5 pointer-events-auto" />}
           position="top-left"
           theme="light"
           label="Quick actions"
           buttonClassName="bg-white w-12 h-12 flex items-center justify-center"
         >
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 pointer-events-auto">
             <button
               className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
               aria-label="Clock"
@@ -78,18 +78,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </div>
 
       <div
-        className={`pointer-events-auto flex items-start justify-center p-4 ${borderClasses}`}
+        className={`pointer-events-none flex items-start justify-center p-4 ${borderClasses}`}
       >
         {/* Top center */}
-        <EmailModalButton />
+        <EmailModalButton/>
       </div>
 
       <div
-        className={`pointer-events-auto flex items-start justify-end p-4 ${borderClasses}`}
+        className={`pointer-events-none flex items-start justify-end p-4 ${borderClasses}`}
       >
         {/* Top right */}
         <Button
-          icon={<PersonIcon className="w-5 h-5" />}
+          icon={<PersonIcon className="w-5 h-5 pointer-events-auto" />}
           position="top-right"
           // TODO: implement onClick handler to toggle auth test
           // onClick={() => setShowAuthTest(v => !v)}
@@ -98,14 +98,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Middle row */}
       <div
-        className={`pointer-events-auto flex items-center justify-start p-4 ${borderClasses}`}
+        className={`pointer-events-none flex items-center justify-start p-4 ${borderClasses}`}
       >
         {/* Middle left */}
         <EmailModalButton />
       </div>
       <div className={middleCellBgClasses} />
       <div
-        className={`pointer-events-auto flex items-center justify-end p-4 ${borderClasses}`}
+        className={`pointer-events-none flex items-center justify-end p-4 ${borderClasses}`}
       >
         {/* Middle right */}
         <EmailModalButton />
@@ -113,17 +113,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Bottom row */}
       <div
-        className={`pointer-events-auto flex items-end justify-start p-4 ${borderClasses}`}
+        className={`pointer-events-none flex items-end justify-start p-4 ${borderClasses}`}
       >
         {/* Bottom left */}
         <DropdownMenu
-          toggleIcon={<PlusCircledIcon className="w-5 h-5" />}
+          toggleIcon={<PlusCircledIcon className="w-5 h-5 pointer-events-auto" />}
           position="bottom-left"
           theme="light"
           label="Add new"
           buttonClassName="bg-white"
         >
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 pointer-events-auto">
             <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800">
               <PlusCircledIcon className="w-4 h-4" />
               <span>Add Waypoint</span>
@@ -140,19 +140,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         </DropdownMenu>
       </div>
       <div
-        className={`pointer-events-auto flex items-end justify-center p-4 ${borderClasses}`}
+        className={`pointer-events-none flex items-end justify-center p-4 ${borderClasses}`}
       >
         {/* Bottom center */}
         <EmailModalButton />
       </div>
       <div
-        className={`pointer-events-auto flex items-end justify-end p-4 ${borderClasses}`}
+        className={`pointer-events-none flex items-end justify-end p-4 ${borderClasses}`}
       >
         {/* Bottom right */}
         <Button
           icon={
             <PaperPlaneIcon
-              className="w-5 h-5"
+              className="w-5 h-5 pointer-events-auto"
               style={{ transform: "rotate(270deg)" }}
             />
           }
