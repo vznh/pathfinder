@@ -12,6 +12,11 @@ import { useEffect, useState } from "react";
 import { Database } from "@/models/supabase_types";
 import EmailModalButton from "@/components/specific/EmailModal";
 import { createClient } from "@/supabase/component";
+import DashboardLayout from "@/layouts/DashboardLayout";
+import WaypointPopup from "@/components/specific/WaypointPopup";
+import EventForm from "@/components/specific/EventForm";
+import type { EventFormProps } from "@/components/specific/EventForm";
+
 
 interface MapViewProps {
   events: Database["public"]["Tables"]["events_v0"]["Row"][];
@@ -23,6 +28,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
   const [selectedWaypoint, setSelectedWaypoint] = useState<
     [number, number] | null
   >(null);
+  const [showEventForm, setShowEventForm] = useState(false);
   const [showAuthTest, setShowAuthTest] = useState(false);
   const supabase = createClient();
 
@@ -80,8 +86,19 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     }
   };
 
-  const createEvent = async () => {
-    // perform api call here, will just print to cosnole for now
+  const handleWaypointModeToggle = () => {
+    setWaypointMode(!waypointMode);
+    if (selectedWaypoint) {
+      setSelectedWaypoint(null);
+      setShowEventForm(false);
+    }
+  };
+
+  const handleCreateEvent = async (formData: Parameters<EventFormProps['onSubmit']>[0]) => {
+    console.log(formData)
+    setSelectedWaypoint(null);
+    setShowEventForm(false);
+    // perform api call here, will just print to console for now
     if (selectedWaypoint) {
       const [lng, lat] = selectedWaypoint;
       const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -89,15 +106,20 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
       if (userError || !user) {
         console.error('User not found or error:', userError)
       }
-      
+
       else {
         const { error: insertError } = await supabase
           .from('events_v0')
           .insert({
             user_id: user.id,
-            event: 'Clicked Event', // add event name's here later
+            event: formData.name,
             latitude: lat,
             longitude: lng,
+            type: formData.type,
+            description: formData.description,
+            date: formData.date,
+            start_time: formData.startTime,
+            end_time: formData.endTime
           })
 
         if (insertError) {
@@ -109,98 +131,42 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     }
   };
 
+
+  const handleClosePopup = () => {
+    setSelectedWaypoint(null);
+    setShowEventForm(false);
+  };
+
+  const handleOpenEventForm = () => {
+    setShowEventForm(true);
+  };
+
   return (
     <div>
       <div className="absolute inset-0">
         <Map />
       </div>
 
-      <div className="overlay-wrapper inset-0 z-10">
-        <div className="absolute bottom-4 right-4 z-10">
-          <EmailModalButton />
-        </div>
-        <Button
-          icon={<ThickArrowUpIcon className="w-5 h-5" />}
-          position={"top-right"}
-          onClick={() => {
-            mapboxClient.geolocation.getUserLocation((coords) => {
-              mapboxClient.camera.zoomTo(
-                [coords.longitude, coords.latitude],
-                20,
-                false,
-              );
-            });
-          }}
+      {selectedWaypoint && !showEventForm && (
+        <WaypointPopup
+          coordinates={selectedWaypoint}
+          onCreateEvent={handleOpenEventForm}
+          onClose={handleClosePopup}
         />
-        <Button
-          icon={<PlusCircledIcon className="w-5 h-5" />}
-          position={"bottom-left"}
-          className={waypointMode ? "bg-blue-200" : ""}
-          onClick={() => setWaypointMode(!waypointMode)}
-        />
-        <Button
-          icon={<PersonIcon className="w-5 h-5" />}
-          position={"top-left"}
-          onClick={() => setShowAuthTest(!showAuthTest)}
-        />
+      )}
 
-        {/* this needs to go */}
-        {selectedWaypoint && (
-          <div className="absolute bottom-20 left-4 bg-white p-4 rounded-lg shadow-lg">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold">Waypoint Selected</h3>
-              <button
-                className="text-gray-500 hover:text-gray-700"
-                onClick={() => {
-                  setSelectedWaypoint(null);
-                  mapboxClient.events.removeAnyMarkers();
-                }}
-              >
-                <Cross2Icon className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="text-sm mb-3">
-              Coordinates: {selectedWaypoint[1].toFixed(6)},{" "}
-              {selectedWaypoint[0].toFixed(6)}
-            </p>
-            <div className="flex space-x-2">
-              <button
-                onClick={openInGoogleMaps}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Google Maps
-              </button>
-              <button
-                onClick={openInAppleMaps}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Apple Maps
-              </button>
-              <button
-                onClick={createEvent}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Create Event
-              </button>
-            </div>
-          </div>
-        )}
+      {selectedWaypoint && showEventForm && (
+        <EventForm
+          coordinates={selectedWaypoint}
+          onSubmit={handleCreateEvent}
+          onCancel={handleClosePopup}
+        />
+      )}
 
-        {/* Auth Test Overlay */}
-        {showAuthTest && (
-          <div className="absolute top-20 left-4 bg-white p-4 rounded-lg shadow-lg max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold">Authentication Test</h3>
-              <button
-                className="text-gray-500 hover:text-gray-700"
-                onClick={() => setShowAuthTest(false)}
-              >
-                <Cross2Icon className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      <DashboardLayout 
+        development={false} 
+        onWaypointModeToggle={handleWaypointModeToggle}
+      />
     </div>
   );
 };

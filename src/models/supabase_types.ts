@@ -37,29 +37,131 @@ export type Database = {
       events_v0: {
         Row: {
           created_at: string
+          date: string | null
+          description: string | null
+          end_time: string | null
           event: string | null
           id: string
           latitude: number | null
           longitude: number | null
+          organization_id: string | null
+          start_time: string | null
+          type: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string
+          date?: string | null
+          description?: string | null
+          end_time?: string | null
           event?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
+          organization_id?: string | null
+          start_time?: string | null
+          type?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string
+          date?: string | null
+          description?: string | null
+          end_time?: string | null
           event?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
+          organization_id?: string | null
+          start_time?: string | null
+          type?: string | null
           user_id?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "events_v0_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_v0"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations_v0: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
         Relationships: []
+      }
+      user_organizations_v0: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_organizations_v0_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_v0"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users_attending_events_v0: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_attending_events_v0_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_v0"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
