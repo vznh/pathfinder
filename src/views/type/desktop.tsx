@@ -93,7 +93,8 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
   };
 
   const handleCreateEvent = async () => {
-    console.log("created event")
+    setSelectedWaypoint(null);
+    setShowEventForm(false);
   }
   const createEvent = async () => {
     // perform api call here, will just print to cosnole for now
