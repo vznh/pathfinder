@@ -4,6 +4,7 @@ interface EventFormProps {
   coordinates: [number, number];
   onSubmit: (eventData: {
     name: string;
+    type: string;
     description: string;
     date: string;
     startTime: string;
@@ -15,17 +16,20 @@ interface EventFormProps {
 const EventForm: React.FC<EventFormProps> = ({ coordinates, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
+    type: '',
     description: '',
     date: '',
     startTime: '',
     endTime: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
@@ -38,8 +42,23 @@ const EventForm: React.FC<EventFormProps> = ({ coordinates, onSubmit, onCancel }
         <div className="mb-2 text-2xl font-bold">Create Event</div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1">Event Name</label>
+            <label className="block text-sm mb-1">Name</label>
             <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Type</label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none"
+            >
+              <option value="">Select a type</option>
+              <option value="College">College</option>
+              <option value="Club">Club</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm mb-1">Description</label>
