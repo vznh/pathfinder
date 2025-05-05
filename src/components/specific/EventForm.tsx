@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-interface EventFormProps {
+export interface EventFormProps {
   coordinates: [number, number];
   onSubmit: (eventData: {
     name: string;

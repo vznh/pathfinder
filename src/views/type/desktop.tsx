@@ -15,6 +15,8 @@ import { createClient } from "@/supabase/component";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import WaypointPopup from "@/components/specific/WaypointPopup";
 import EventForm from "@/components/specific/EventForm";
+import type { EventFormProps } from "@/components/specific/EventForm";
+
 
 interface MapViewProps {
   events: Database["public"]["Tables"]["events_v0"]["Row"][];
@@ -92,12 +94,11 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     }
   };
 
-  const handleCreateEvent = async () => {
+  const handleCreateEvent = async (formData: Parameters<EventFormProps['onSubmit']>[0]) => {
+    console.log(formData)
     setSelectedWaypoint(null);
     setShowEventForm(false);
-  }
-  const createEvent = async () => {
-    // perform api call here, will just print to cosnole for now
+    // perform api call here, will just print to console for now
     if (selectedWaypoint) {
       const [lng, lat] = selectedWaypoint;
       const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -111,9 +112,14 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
           .from('events_v0')
           .insert({
             user_id: user.id,
-            event: 'Clicked Event', // add event name's here later
+            event: formData.name,
             latitude: lat,
             longitude: lng,
+            type: formData.type,
+            description: formData.description,
+            date: formData.date,
+            start_time: formData.startTime,
+            end_time: formData.endTime
           })
 
         if (insertError) {
@@ -158,7 +164,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
       )}
 
       <DashboardLayout 
-        development={true} 
+        development={false} 
         onWaypointModeToggle={handleWaypointModeToggle}
       />
     </div>
