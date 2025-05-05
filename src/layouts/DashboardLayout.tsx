@@ -118,6 +118,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-end justify-end p-4 ${borderClasses}`}
       >
         {/* Bottom right */}
+        <EmailModalButton></EmailModalButton>
       </div>
     </div>
   );
