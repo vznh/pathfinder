@@ -54,12 +54,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             >
               <ClockIcon className="w-5 h-5" />
             </button>
+
+            { /* FILTERS -- START */}
             <button
               className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
               aria-label="Filters"
+              onClick={() => {}}
             >
               <MixerHorizontalIcon className="w-5 h-5" />
             </button>
+            { /* FILTERS -- END */}
+
             <button
               className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
               aria-label="Add"
@@ -87,7 +92,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-start justify-end p-4 ${borderClasses}`}
       >
         {/* Top right */}
-  
+
       </div>
 
       {/* Middle row */}
