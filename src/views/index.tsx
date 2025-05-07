@@ -38,16 +38,9 @@ const MapView = ({ events_v0 }: MapViewProps) => {
   }, [events_v0, setEvents]);
 
   const isDesktop = windowSize && windowSize.width >= 768;
+  const ViewComponent = isDesktop ? DesktopView : MobileView;
 
-  return (
-    <Fragment>
-      {isDesktop ? (
-        <DesktopView />
-      ) : (
-        <MobileView />
-      )}
-    </Fragment>
-  );
+  return <ViewComponent />
 };
 
 export default MapView;
