@@ -42,9 +42,9 @@ const MapView = ({ events_v0 }: MapViewProps) => {
   return (
     <Fragment>
       {isDesktop ? (
-        <DesktopView events={events_v0} />
+        <DesktopView />
       ) : (
-        <MobileView events_v0={events_v0}/>
+        <MobileView />
       )}
     </Fragment>
   );
