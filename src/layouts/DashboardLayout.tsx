@@ -18,6 +18,7 @@ import {
   ClockIcon,
   PaperPlaneIcon
 } from "@radix-ui/react-icons";
+import { VariableNotchDialog } from "@/components/VariableNotch";
 
 interface DashboardLayoutProps {
   development?: boolean;
@@ -87,7 +88,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-start justify-end p-4 ${borderClasses}`}
       >
         {/* Top right */}
-  
+
       </div>
 
       {/* Middle row */}
@@ -109,10 +110,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       >
         {/* Bottom left */}
       </div>
+
+      {/* Bottom center */}
       <div
-        className={`pointer-events-none flex items-end justify-center p-4 ${borderClasses}`}
+        className={`pointer-events-auto flex items-end justify-center pb-5 pl-5 ${borderClasses}`}
       >
-        {/* Bottom center */}
+        <VariableNotchDialog />
       </div>
       <div
         className={`pointer-events-none flex items-end justify-end p-4 ${borderClasses}`}
