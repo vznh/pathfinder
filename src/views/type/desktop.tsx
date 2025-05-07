@@ -16,13 +16,10 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import WaypointPopup from "@/components/specific/WaypointPopup";
 import EventForm from "@/components/specific/EventForm";
 import type { EventFormProps } from "@/components/specific/EventForm";
+import { useEventsStore } from "@/stores/useEventsStore";
 
 
-interface MapViewProps {
-  events: Database["public"]["Tables"]["events_v0"]["Row"][];
-}
-
-const DesktopView: React.FC<MapViewProps> = ({ events }) => {
+const DesktopView: React.FC = () => {
   // modes
   const [waypointMode, setWaypointMode] = useState(false);
   const [selectedWaypoint, setSelectedWaypoint] = useState<
@@ -31,6 +28,8 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
   const [showEventForm, setShowEventForm] = useState(false);
   const [showAuthTest, setShowAuthTest] = useState(false);
   const supabase = createClient();
+
+  const events = useEventsStore(state => state.events);
 
   useEffect(() => {
     if (!events || events.length === 0) return;
@@ -163,8 +162,8 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
         />
       )}
 
-      <DashboardLayout 
-        development={false} 
+      <DashboardLayout
+        development={false}
         onWaypointModeToggle={handleWaypointModeToggle}
       />
     </div>
