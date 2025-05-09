@@ -7,6 +7,7 @@ import {
   PlusCircledIcon,
   ThickArrowUpIcon,
   PersonIcon,
+  MagnifyingGlassIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { Database } from "@/models/supabase_types";
@@ -25,6 +26,34 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
   >(null);
   const [showAuthTest, setShowAuthTest] = useState(false);
   const supabase = createClient();
+  const [searchInput, setSearchInput] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+
+  const ucscLocations = [
+    "Cowell College",
+    "Crown College",
+    "College Nine",
+    "College Ten",
+    "Rachel Carson College",
+    "Oakes College",
+    "Porter College",
+    "Stevenson College",
+    "Kresge College",
+    "Science Hill",
+    "East Field",
+    "Quarry Amphitheater",
+    "Science and Engineering Library",
+    "McHenry Library",
+    "University Center",
+    "Cultural Center",
+    "Bay Tree Bookstore",
+    "Cowell & Stevenson Dining Hall",
+    "Crown & Merrill Dining Hall",
+    "College Nine & Ten Dining Hall",
+    "Rachel Carson & Oakes Dining Hall",
+    "Porter & Kresge Dining Hall",
+  ];
+  
 
   useEffect(() => {
     if (!events || events.length === 0) return;
@@ -115,7 +144,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
         <Map />
       </div>
 
-      <div className="overlay-wrapper inset-0 z-10">
+      <div className="overlay-wrapper inset-0 z-10 relative">
         <div className="absolute bottom-4 right-4 z-10">
           <EmailModalButton />
         </div>
@@ -143,7 +172,49 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
           position={"top-left"}
           onClick={() => setShowAuthTest(!showAuthTest)}
         />
-
+        <div className="absolute top-4 left-[120px] z-20 w-[360px]">
+          <div className="relative">
+            <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-md space-x-2">
+              <MagnifyingGlassIcon className="w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full outline-none bg-transparent text-sm"
+                value={searchInput}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchInput(value);
+                  setFilteredSuggestions(
+                    value.length === 0
+                      ? []
+                      : ucscLocations
+                          .filter((loc) =>
+                            loc.toLowerCase().startsWith(value.toLowerCase())
+                          )
+                          .sort((a, b) => a.localeCompare(b))
+                  );                  
+                }}
+              />
+            </div>
+            {/* ⬇️ Dropdown suggestion list goes here */}
+            {filteredSuggestions.length > 0 && (
+              <ul className="absolute top-full left-0 mt-1 w-full bg-white rounded-md shadow-md z-50 max-h-60 overflow-y-auto">
+                {filteredSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                    onClick={() => {
+                      setSearchInput(suggestion);
+                      setFilteredSuggestions([]);
+                    }}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
         {/* this needs to go */}
         {selectedWaypoint && (
           <div className="absolute bottom-20 left-4 bg-white p-4 rounded-lg shadow-lg">
