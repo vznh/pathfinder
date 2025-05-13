@@ -5,10 +5,10 @@ import MobileView from "./type/mobile";
 import { type Database } from "@/models/supabase_types";
 
 interface MapViewProps {
-  events_v0: Database['public']['Tables']['events_v0']['Row'][]
+  events: Database["public"]["Views"]["events"]["Row"][]
 }
 
-const MapView = ({ events_v0 }: MapViewProps) => {
+const MapView = ({ events }: MapViewProps) => {
   const [windowSize, setWindowSize] = useState<{ width: number; height: number } | null>(null);
 
   useEffect(() => {
@@ -31,9 +31,9 @@ const MapView = ({ events_v0 }: MapViewProps) => {
   return (
     <Fragment>
       {isDesktop ? (
-        <DesktopView events={events_v0} />
+        <DesktopView events={events} />
       ) : (
-        <MobileView events_v0={events_v0}/>
+        <MobileView events={events}/>
       )}
     </Fragment>
   );

@@ -3,11 +3,11 @@ import DesktopView from "./desktop";
 import { Database } from "@/models/supabase_types";
 
 interface MapViewProps {
-  events_v0: Database["public"]["Tables"]["events_v0"]["Row"][];
+  events: Database["public"]["Views"]["events"]["Row"][];
 }
 
-const MobileView: React.FC<MapViewProps> = ({ events_v0 }) => {
-  return <DesktopView events={events_v0} />
+const MobileView: React.FC<MapViewProps> = ({ events }) => {
+  return <DesktopView events={events} />
 };
 
 export default MobileView;
