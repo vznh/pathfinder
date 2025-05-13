@@ -19,7 +19,7 @@ import type { EventFormProps } from "@/components/specific/EventForm";
 
 
 interface MapViewProps {
-  events: Database["public"]["Tables"]["events_v0"]["Row"][];
+  events: Database["public"]["Views"]["events"]["Row"][];
 }
 
 const DesktopView: React.FC<MapViewProps> = ({ events }) => {

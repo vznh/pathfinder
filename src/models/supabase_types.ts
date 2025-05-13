@@ -7,31 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       events_v0: {
@@ -85,23 +60,51 @@ export type Database = {
             referencedRelation: "organizations_v0"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "events_v0_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_v0"
+            referencedColumns: ["id"]
+          },
         ]
       }
       organizations_v0: {
         Row: {
           created_at: string
+          email: string | null
           id: string
           name: string
         }
         Insert: {
           created_at?: string
+          email?: string | null
           id?: string
           name: string
         }
         Update: {
           created_at?: string
+          email?: string | null
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      profiles_v0: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
         }
         Relationships: []
       }
@@ -130,6 +133,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations_v0"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_organizations_v0_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_v0"
             referencedColumns: ["id"]
           },
         ]
@@ -161,11 +171,33 @@ export type Database = {
             referencedRelation: "events_v0"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "users_attending_events_v0_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_v0"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      events: {
+        Row: {
+          date: string | null
+          description: string | null
+          end_time: string | null
+          event: string | null
+          latitude: number | null
+          longitude: number | null
+          organization_name: string | null
+          rsvp_count: number | null
+          start_time: string | null
+          type: string | null
+          user_email: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
@@ -285,9 +317,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
