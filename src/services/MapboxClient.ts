@@ -382,18 +382,32 @@ function createDynamicMarker(eventType: string, isSelected: boolean = false): HT
   const el = document.createElement("div");
   el.className = "custom-marker";
 
-  // Set fixed size
-  const size = isSelected ? "32px" : "24px";
-  el.style.width = size;
-  el.style.height = size;
-  
-  // Style the pin using SVG
-  el.style.backgroundImage = 'url("/pins.svg")';
+  // Size adjustments
+  el.style.width = isSelected ? "32px" : "24px";
+  el.style.height = isSelected ? "32px" : "24px";
+
+  // Dynamic icon or color logic
+  switch (eventType) {
+    case "club":
+      el.style.backgroundImage = 'url("/pins.svg")';
+      break;
+    case "personal":
+      el.style.backgroundColor = "#ff6600";
+      break;
+    case "college":
+      el.style.backgroundColor = "#4f46e5"; // Example blue
+      break;
+    default:
+      el.style.backgroundColor = "#888";
+  }
+
+  // Style formatting
   el.style.backgroundSize = "contain";
   el.style.backgroundRepeat = "no-repeat";
   el.style.backgroundPosition = "center";
+  el.style.borderRadius = "50%";
   el.style.cursor = "pointer";
-  
+
   return el;
 }
 
