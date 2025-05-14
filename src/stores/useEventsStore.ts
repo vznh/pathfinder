@@ -1,4 +1,4 @@
-// pathfinder/src/stores/allEventsStore.ts
+// stores/useEventsStore
 import { Database } from '@/models/supabase_types';
 import { create } from "zustand";
 
