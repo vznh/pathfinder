@@ -6,27 +6,25 @@ import { type Database } from "@/models/supabase_types";
 import MapView from "@/views";
 
 const Homepage: NextPage<{
-  events: Database["public"]["Views"]["events"]["Row"][];
-}> = ({ events }) => {
+  events_v0: Database["public"]["Tables"]["events_v0"]["Row"][];
+}> = ({ events_v0 }) => {
   return (
     <div>
       <Head>
         <title>⌘</title>
       </Head>
       {/* Main view will go here */}
-      <MapView events={events} />
+      <MapView events_v0={events_v0} />
     </div>
   );
 };
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createClient(context);
-  const { data: events, error } = await supabase.from("events").select()
-  if (error) throw error
-  console.log(events)
+  const { data: events_v0 } = await supabase.from("events_v0").select();
   return {
     props: {
-      events: events,
+      events_v0: events_v0,
     },
   };
 }
