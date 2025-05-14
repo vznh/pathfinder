@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export interface EventFormProps {
   coordinates: [number, number];
@@ -23,6 +23,12 @@ const EventForm: React.FC<EventFormProps> = ({ coordinates, onSubmit, onCancel }
     endTime: ''
   });
 
+  const [organizationOptions, setOrganizationOptions] = useState<string[]>([]);
+  useEffect(() => {
+    const data = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+    setOrganizationOptions(["Personal", ...data]);
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -46,18 +52,20 @@ const EventForm: React.FC<EventFormProps> = ({ coordinates, onSubmit, onCancel }
             <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none" />
           </div>
           <div>
-            <label className="block text-sm mb-1">Type</label>
+            <label className="block text-sm mb-1">Organization</label>
             <select
-              name="type"
+              name="Organization"
               value={formData.type}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none"
             >
-              <option value="">Select a type</option>
-              <option value="College">College</option>
-              <option value="Club">Club</option>
-              <option value="Other">Other</option>
+              <option value="">Select an organization</option>
+              {organizationOptions.map((orgName) => (
+                <option key={orgName} value={orgName}>
+                  {orgName}
+                </option>
+              ))}
             </select>
           </div>
           <div>
