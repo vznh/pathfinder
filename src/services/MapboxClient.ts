@@ -390,15 +390,19 @@ function createDynamicMarker(eventType: string, isSelected: boolean = false): HT
   switch (eventType) {
     case "club":
       el.style.backgroundImage = 'url("/pins.svg")';
-      break;
-    case "personal":
-      el.style.backgroundColor = "#ff6600";
+      el.style.backgroundColor = "#ff0000";
       break;
     case "college":
-      el.style.backgroundColor = "#4f46e5"; // Example blue
+      el.style.backgroundImage = 'url("/pins.svg")';
+      el.style.backgroundColor = "#00ff00";
+      break;
+    case "personal":
+      el.style.backgroundImage = 'url("/pins.svg")';
+      el.style.backgroundColor = "#0000ff";
       break;
     default:
-      el.style.backgroundColor = "#888";
+      el.style.backgroundImage = 'url("/pins.svg")';
+      el.style.backgroundColor = "#000000";
   }
 
   // Style formatting
