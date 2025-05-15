@@ -2,7 +2,7 @@
 import { Database } from '@/models/supabase_types';
 import { create } from "zustand";
 
-type DBEvent = Database['public']['Tables']['events_v0']['Row'];
+type DBEvent = Database['public']['Views']['events']['Row'];
 
 export interface EventsState {
   events: DBEvent[];

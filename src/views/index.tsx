@@ -7,10 +7,10 @@ import { type Database } from "@/models/supabase_types";
 import { useEventsStore } from '@/stores/useEventsStore';
 
 interface MapViewProps {
-  events_v0: Database['public']['Tables']['events_v0']['Row'][]
+  events: Database['public']['Views']['events']['Row'][]
 }
 
-const MapView = ({ events_v0 }: MapViewProps) => {
+const MapView = ({ events }: MapViewProps) => {
   const [windowSize, setWindowSize] = useState<{ width: number; height: number } | null>(null);
   const setEvents = useEventsStore(state => state.setEvents);
 
@@ -30,12 +30,12 @@ const MapView = ({ events_v0 }: MapViewProps) => {
   }, []);
 
   useEffect(() => {
-    if (!events_v0) {
+    if (!events) {
       console.error("ERROR: No events were loaded.");
     } else {
-      setEvents(events_v0);
+      setEvents(events);
     }
-  }, [events_v0, setEvents]);
+  }, [events, setEvents]);
 
   const isDesktop = windowSize && windowSize.width >= 768;
   const ViewComponent = isDesktop ? DesktopView : MobileView;
