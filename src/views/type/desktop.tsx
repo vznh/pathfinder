@@ -108,7 +108,7 @@ const DesktopView: React.FC = () => {
 
       else {
         const { error: insertError } = await supabase
-          .from('events_v0')
+          .from('events')
           .insert({
             user_id: user.id,
             event: formData.name,
