@@ -10,9 +10,6 @@ const Homepage: NextPage<{
 }> = ({ events }) => {
   return (
     <div>
-      <Head>
-        <title>⌘</title>
-      </Head>
       {/* Main view will go here */}
       <MapView events={events} />
     </div>
