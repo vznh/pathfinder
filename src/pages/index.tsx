@@ -10,9 +10,6 @@ const Homepage: NextPage<{
 }> = ({ events }) => {
   return (
     <div>
-      <Head>
-        <title>⌘</title>
-      </Head>
       {/* Main view will go here */}
       <MapView events={events} />
     </div>
@@ -21,9 +18,7 @@ const Homepage: NextPage<{
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createClient(context);
-  const { data: events, error } = await supabase.from("events").select()
-  if (error) throw error
-  console.log(events)
+  const { data: events } = await supabase.from("events").select();
   return {
     props: {
       events: events,

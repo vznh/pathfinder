@@ -48,13 +48,10 @@ const ucscLocations = [
   { name: "Cafe Iveta", latitude: 36.9985, longitude: -122.0560 },
   { name: "Pogonip", latitude: 36.9990, longitude: -122.0300 },
   { name: "Oakes Meadow", latitude: 36.9880, longitude: -122.0650 },
-];
+];import { useEventsStore } from "@/stores/useEventsStore";
 
-interface MapViewProps {
-  events: Database["public"]["Views"]["events"]["Row"][];
-}
 
-const DesktopView: React.FC<MapViewProps> = ({ events }) => {
+const DesktopView: React.FC = () => {
   // modes
   const [waypointMode, setWaypointMode] = useState(false);
   const [selectedWaypoint, setSelectedWaypoint] = useState<
@@ -117,6 +114,8 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
     setFilteredSuggestions([]);
     mapboxClient.camera.zoomTo(s.coordinates, 18, true);
   };
+
+  const events = useEventsStore(state => state.events);
 
   useEffect(() => {
     if (!events || events.length === 0) return;
@@ -195,7 +194,7 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
 
       else {
         const { error: insertError } = await supabase
-          .from('events_v0')
+          .from('events')
           .insert({
             user_id: user.id,
             event: formData.name,
@@ -249,6 +248,8 @@ const DesktopView: React.FC<MapViewProps> = ({ events }) => {
         />
       )}
 
+      <DashboardLayout
+        development={false}
       <DashboardLayout
         development={false}
         onWaypointModeToggle={handleWaypointModeToggle}
