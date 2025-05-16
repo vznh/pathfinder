@@ -75,18 +75,21 @@ export type Database = {
           email: string | null
           id: string
           name: string
+          type: Database["public"]["Enums"]["organization_type"] | null
         }
         Insert: {
           created_at?: string
           email?: string | null
           id?: string
           name: string
+          type?: Database["public"]["Enums"]["organization_type"] | null
         }
         Update: {
           created_at?: string
           email?: string | null
           id?: string
           name?: string
+          type?: Database["public"]["Enums"]["organization_type"] | null
         }
         Relationships: []
       }
@@ -168,6 +171,13 @@ export type Database = {
             foreignKeyName: "users_attending_events_v0_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_attending_events_v0_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events_v0"
             referencedColumns: ["id"]
           },
@@ -188,6 +198,7 @@ export type Database = {
           description: string | null
           end_time: string | null
           event: string | null
+          id: string | null
           latitude: number | null
           longitude: number | null
           organization_name: string | null
@@ -203,7 +214,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      organization_type: "club" | "college"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -318,6 +329,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      organization_type: ["club", "college"],
+    },
   },
 } as const
