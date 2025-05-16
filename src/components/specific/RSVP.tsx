@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Loader2, X, Calendar, Clock, Mail, User } from "lucide-react"
+import { createClient } from "@/supabase/component";
 
 // Define the event data structure
 export interface EventData {
@@ -14,7 +15,6 @@ export interface EventData {
   endTime: string
   creator: {
     name: string
-    email: string
     isClub: boolean
   }
 }
@@ -24,15 +24,37 @@ interface EventRsvpProps {
   onClose?: () => void
 }
 
+
+
 export function EventRsvp({ event, onClose }: EventRsvpProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-
+  
   const handleAttend = async () => {
     setIsSubmitting(true)
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const supabase = createClient();
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !user) {
+        console.error('User not found or error:', userError)
+      }
+
+      else {
+        const { error: insertError } = await supabase
+          .from('users_attending_events_v0')
+          .insert({
+            user_id: user.id,
+            event_id: event.id
+          })
+
+        if (insertError) {
+          console.error('Insert error:', insertError)
+        } else {
+          console.log('Row inserted successfully')
+        }
+      }
       console.log("Attending event:", { eventId: event.id, attending: true })
       setSubmitted(true)
       setTimeout(() => onClose?.(), 1500)
@@ -64,7 +86,7 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
     return (
       <div className="rounded-lg border border-gray-700 bg-gray-800 text-white shadow-lg w-full max-w-xs p-4 text-center animate-in fade-in">
         <div className="text-green-400 mb-2 text-xl">✓</div>
-        <p className="text-sm">You're attending this event!</p>
+        <p className="text-sm">You are attending this event!</p>
       </div>
     )
   }
@@ -88,12 +110,6 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
             {event.creator.isClub ? "Club: " : "Organizer: "}
             {event.creator.name}
           </span>
-        </div>
-        <div className="flex items-center text-xs text-gray-300">
-          <Mail className="h-3 w-3 mr-1" />
-          <a href={`mailto:${event.creator.email}`} className="text-blue-400 hover:underline">
-            {event.creator.email}
-          </a>
         </div>
       </div>
 

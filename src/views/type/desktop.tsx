@@ -128,7 +128,7 @@ const DesktopView: React.FC = () => {
         typeof row.latitude === "number"
       ) {
         const eventData: EventData = {
-          id: row.id || "",
+          id: row.id || "ERROR",
           name: row.event || "",
           type: row.type || "personal",
           description: row.description || "",
@@ -136,8 +136,7 @@ const DesktopView: React.FC = () => {
           startTime: row.start_time || "00:00",
           endTime: row.end_time || "23:59",
           creator: {
-            name: row.user_id || "Anonymous",
-            email: "",
+            name: row.user_email || row.organization_name || 'ERROR',
             isClub: row.type === "club"
           }
         };
