@@ -1,4 +1,3 @@
-// views/type/DesktopView.tsx
 import Map from "@/components/Map";
 import mapboxClient from "@/services/MapboxClient";
 import { EventData } from "@/components/specific/RSVP";
@@ -7,10 +6,8 @@ import { createClient } from "@/supabase/component";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import WaypointPopup from "@/components/specific/WaypointPopup";
 
-// ⬇️ Renamed import
 import PersonalEventForm from "@/components/specific/PersonalEventForm";
 import type { PersonalEventFormProps } from "@/components/specific/PersonalEventForm";
-
 import OrganizationEventForm from "@/components/specific/OrganizationEventForm";
 import type { OrganizationEventFormProps } from "@/components/specific/OrganizationEventForm";
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
@@ -52,7 +49,8 @@ const DesktopView: React.FC = () => {
   const [waypointMode, setWaypointMode] = useState(false);
   const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
-  const [showAuthTest, setShowAuthTest] = useState(false);
+  const [formType, setFormType] = useState<'personal' | 'org'>('personal');
+
   const supabase = createClient();
   // search bar state
   const [searchInput, setSearchInput] = useState<string>("");
@@ -144,14 +142,12 @@ const DesktopView: React.FC = () => {
       const handleClick = (e: mapboxgl.MapMouseEvent) => {
         const coordinates = e.lngLat.toArray() as [number, number];
         setSelectedWaypoint(coordinates);
-
         mapboxClient.camera.zoomTo(coordinates, 18, true);
         mapboxClient.events.addBaseMarker(coordinates);
         setWaypointMode(false);
       };
 
       mapboxClient.getMap().once("click", handleClick);
-
       return () => {
         document.body.style.cursor = "";
         mapboxClient.getMap().off("click", handleClick);
@@ -161,20 +157,6 @@ const DesktopView: React.FC = () => {
     }
   }, [waypointMode]);
 
-  const openInGoogleMaps = () => {
-    if (selectedWaypoint) {
-      const [lng, lat] = selectedWaypoint;
-      window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, "_blank");
-    }
-  };
-
-  const openInAppleMaps = () => {
-    if (selectedWaypoint) {
-      const [lng, lat] = selectedWaypoint;
-      window.open(`https://maps.apple.com/?q=${lat},${lng}`, "_blank");
-    }
-  };
-
   const handleWaypointModeToggle = () => {
     setWaypointMode(!waypointMode);
     if (selectedWaypoint) {
@@ -183,8 +165,9 @@ const DesktopView: React.FC = () => {
     }
   };
 
-  const handleCreateEvent = async (formData: Parameters<PersonalEventFormProps['onSubmit']>[0]) => {
-    console.log(formData);
+  const handleCreateEvent = async (
+    formData: Parameters<PersonalEventFormProps["onSubmit"]>[0]
+  ) => {
     setSelectedWaypoint(null);
     setShowEventForm(false);
 
@@ -193,26 +176,24 @@ const DesktopView: React.FC = () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        console.error('User not found or error:', userError);
+        console.error("User not found or error:", userError);
       } else {
-        const { error: insertError } = await supabase
-          .from('events_v0')
-          .insert({
-            user_id: user.id,
-            event: formData.name,
-            latitude: lat,
-            longitude: lng,
-            type: formData.tags,
-            description: formData.description,
-            date: formData.date,
-            start_time: formData.startTime,
-            end_time: formData.endTime
-          });
+        const { error: insertError } = await supabase.from("events_v0").insert({
+          user_id: user.id,
+          event: formData.name,
+          latitude: lat,
+          longitude: lng,
+          type: formData.tags,
+          description: formData.description,
+          date: formData.date,
+          start_time: formData.startTime,
+          end_time: formData.endTime,
+        });
 
         if (insertError) {
-          console.error('Insert error:', insertError);
+          console.error("Insert error:", insertError);
         } else {
-          console.log('Row inserted successfully');
+          console.log("Row inserted successfully");
         }
       }
     }
@@ -242,16 +223,19 @@ const DesktopView: React.FC = () => {
       )}
 
       {selectedWaypoint && showEventForm && (
-        /*<PersonalEventForm
-          coordinates={selectedWaypoint}
-          onSubmit={handleCreateEvent}
-          onCancel={handleClosePopup}
-        />*/
-        <PersonalEventForm
-          coordinates={selectedWaypoint}
-          onSubmit={handleCreateEvent}
-          onCancel={handleClosePopup}
-        />
+        formType === "personal" ? (
+          <PersonalEventForm
+            coordinates={selectedWaypoint}
+            onSubmit={handleCreateEvent}
+            onCancel={handleClosePopup}
+          />
+        ) : (
+          <OrganizationEventForm
+            coordinates={selectedWaypoint}
+            onSubmit={handleCreateEvent}
+            onCancel={handleClosePopup}
+          />
+        )
       )}
 
       <DashboardLayout
@@ -261,6 +245,11 @@ const DesktopView: React.FC = () => {
         onSearchInputChange={handleSearchChange}
         filteredSuggestions={filteredSuggestions}
         onSuggestionSelect={handleSuggestionSelect}
+        {...(showEventForm && {
+          formType,
+          onFormTypeToggle: () =>
+            setFormType(formType === "personal" ? "org" : "personal"),
+        })}
       />
     </div>
   );
