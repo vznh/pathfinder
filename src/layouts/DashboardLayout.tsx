@@ -1,9 +1,13 @@
 // layouts/DashboardLayout.tsx
 import React from "react";
+import type React from "react";
+import { useState, useEffect } from "react"; // Import useState and useEffect
 import EmailModalButton from "@/components/specific/EmailModal";
 import DropdownMenu from "@/components/reusable/DropDownMenu";
 import { Button } from "@/components/reusable/Button"
+import { createClient } from "@/supabase/component";
 import mapboxClient from "@/services/MapboxClient";
+import { GoogleSignInModal } from "@/components/specific/SignInOverlay"; // Import the SignInOverlay component
 import {
   DotsVerticalIcon,
   PersonIcon,
@@ -17,7 +21,9 @@ import {
   SewingPinFilledIcon,
   ClockIcon,
   PaperPlaneIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  Link2Icon,
+  LinkBreak2Icon
 } from "@radix-ui/react-icons";
 
 interface DashboardLayoutProps {
@@ -37,6 +43,61 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   filteredSuggestions,
   onSuggestionSelect,
 }) => {
+  const supabase = createClient(); // Initialize Supabase client
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // State for authentication status
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false); // State for overlay visibility
+  const [signInError, setSignInError] = useState<string | null>(null); // State for sign-in errors
+
+  useEffect(() => {
+    // Check initial auth state
+    supabase.auth.getUser()
+      .then(({ data: { user } }) => {
+        setIsAuthenticated(!!user);
+      })
+      .catch(console.error);
+
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session?.user);
+      // Close overlay and clear error on successful sign in
+      if (event === 'SIGNED_IN') {
+        setIsOverlayOpen(false);
+        setSignInError(null);
+      }
+    });
+
+    // Clean up the listener
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  const handleOpenOverlay = () => {
+    setIsOverlayOpen(true);
+  };
+
+  const handleCloseOverlay = () => {
+    setIsOverlayOpen(false);
+    setSignInError(null); // Clear error when closing
+  };
+
+  const handleGoogleSignIn = async () => {
+    setSignInError(null); // Clear previous errors
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: '/', // Redirect back to the root path
+      },
+    });
+
+    if (error) {
+      console.error('Error signing in with Google:', error.message);
+      setSignInError('Failed to sign in with Google. Please try again.'); // Set a user-friendly error message
+    }
+    // Supabase listener handles closing overlay and setting auth state on success
+  };
+
+
   const borderClasses = development
     ? "border border-dashed border-gray-300"
     : "";
@@ -124,7 +185,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-start justify-end p-4 ${borderClasses}`}
       >
         {/* Top right */}
-  
+
       </div>
 
       {/* Middle row */}
@@ -141,10 +202,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </div>
 
       {/* Bottom row */}
+
+       {/* Bottom left */}
       <div
-        className={`pointer-events-none flex items-end justify-start p-4 ${borderClasses}`}
+        className={`pointer-events-auto flex items-end justify-start p-4 ${borderClasses}`}
       >
-        {/* Bottom left */}
+        <Button
+          icon={ isAuthenticated ? <Link2Icon className="w-4 h-4"/> : <LinkBreak2Icon className="w-4 h-4"/> }
+          position={ "bottom-left" }
+          onClick={isAuthenticated ? undefined : handleOpenOverlay} // Open overlay only if not authenticated
+        />
       </div>
       <div
         className={`pointer-events-none flex items-end justify-center p-4 ${borderClasses}`}
@@ -157,6 +224,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {/* Bottom right */}
         <EmailModalButton></EmailModalButton>
       </div>
+
+      {/* SignInOverlay component */}
+      <GoogleSignInModal
+        isOpen={isOverlayOpen}
+        onClose={handleCloseOverlay}
+        onSignInClick={handleGoogleSignIn}
+        signInError={signInError}
+      />
     </div>
   );
 };
