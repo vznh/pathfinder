@@ -135,6 +135,7 @@ const DesktopView: React.FC = () => {
           date: row.date || new Date().toISOString().split('T')[0],
           startTime: row.start_time || "00:00",
           endTime: row.end_time || "23:59",
+          rsvp_count: row.rsvp_count,
           creator: {
             name: row.user_email || row.organization_name || 'ERROR',
             isClub: row.type === "club"
