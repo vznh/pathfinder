@@ -1,26 +1,17 @@
 // layouts/DashboardLayout.tsx
-import React from "react";
 import type React from "react";
 import { useState, useEffect } from "react"; // Import useState and useEffect
 import EmailModalButton from "@/components/specific/EmailModal";
 import DropdownMenu from "@/components/reusable/DropDownMenu";
 import { Button } from "@/components/reusable/Button"
 import { createClient } from "@/supabase/component";
-import mapboxClient from "@/services/MapboxClient";
 import { GoogleSignInModal } from "@/components/specific/SignInOverlay"; // Import the SignInOverlay component
 import {
   DotsVerticalIcon,
-  PersonIcon,
-  GearIcon,
-  InfoCircledIcon,
-  LayersIcon,
   MixerHorizontalIcon,
-  ReaderIcon,
-  ExitIcon,
   PlusCircledIcon,
   SewingPinFilledIcon,
   ClockIcon,
-  PaperPlaneIcon,
   MagnifyingGlassIcon,
   Link2Icon,
   LinkBreak2Icon
