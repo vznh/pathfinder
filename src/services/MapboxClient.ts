@@ -1,5 +1,8 @@
 // src/components/MapboxClient.tsx
 import mapboxgl from "mapbox-gl";
+import { EventData, EventRsvp } from "@/components/specific/RSVP";
+import { createRoot } from "react-dom/client";
+import React from "react";
 
 export interface mapboxClientResponse {
   data?: Array<any>;
@@ -22,7 +25,7 @@ interface NavigationService {}
 
 interface EventService {
   addBaseMarker(coords: [number, number]): void;
-  addEventMarker(coords: [number, number]): void;
+  addEventMarker(coords: [number, number], eventData: EventData): void;
   removeAnyMarkers(): void;
 }
 
@@ -113,11 +116,10 @@ class NavigationServiceImpl implements NavigationService {
 class EventServiceImpl implements EventService {
   private client: MapboxClient;
   private marker: mapboxgl.Marker | null = null;
-  private eventMarkers: [mapboxgl.Marker | null];
+  private eventMarkers: Map<string, mapboxgl.Marker> = new Map();
 
   constructor(client: MapboxClient) {
     this.client = client;
-    this.eventMarkers = [null];
   }
 
   addBaseMarker(coords: [number, number]): void {
@@ -138,26 +140,111 @@ class EventServiceImpl implements EventService {
       .addTo(this.client.getMap());
   }
 
-  addEventMarker(coordinates: [number, number]): void {
-		if (!this.client.getMap())
-			throw new Error(
-				"Map instance isn't initialized. Caught from func addEventMarker",
-			);
+  addEventMarker(coordinates: [number, number], eventData: EventData): void {
+    if (!this.client.getMap())
+      throw new Error(
+        "Map instance isn't initialized. Caught from func addEventMarker"
+      );
+    
+    const markerEl = createDynamicMarker(eventData.type);
+    
+    // Create hover popup
+    const hoverPopup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: [0, -8],
+      className: 'hover-popup'
+    });
 
-		// newEventMarker: mapboxgl.Marker =
-		this.eventMarkers.push(new mapboxgl.Marker({
-			color: "#000000",
-			draggable: false,
-		})
-			.setLngLat(coordinates)
-			.addTo(this.client.getMap()));
-	}
+    // Create hover content
+    const hoverContent = document.createElement('div');
+    hoverContent.style.padding = '4px 8px';
+    hoverContent.style.textAlign = 'center';
+
+    const nameDiv = document.createElement('div');
+    nameDiv.textContent = eventData.name;
+    nameDiv.style.fontWeight = '500';
+    nameDiv.style.fontSize = '12px';
+    hoverContent.appendChild(nameDiv);
+
+    const countDiv = document.createElement('div');
+    countDiv.textContent = `${eventData.rsvp_count || 0} attending`;
+    countDiv.style.fontSize = '11px';
+    countDiv.style.opacity = '0.8';
+    countDiv.style.marginTop = '2px';
+    hoverContent.appendChild(countDiv);
+
+    // Create RSVP popup
+    const rsvpPopup = new mapboxgl.Popup({
+      offset: [0, -12],
+      closeButton: false,
+      closeOnClick: false,
+      maxWidth: '300px',
+      className: 'custom-popup'
+    });
+
+    // Create a container for the RSVP component
+    const popupContent = document.createElement('div');
+    popupContent.className = 'rsvp-popup-content';
+    
+    const marker = new mapboxgl.Marker({
+      element: markerEl,
+      anchor: "bottom"
+    })
+      .setLngLat(coordinates)
+      .addTo(this.client.getMap());
+
+    // Add hover events
+    markerEl.addEventListener('mouseenter', () => {
+      hoverPopup
+        .setLngLat(coordinates)
+        .setDOMContent(hoverContent)
+        .addTo(this.client.getMap());
+    });
+
+    markerEl.addEventListener('mouseleave', () => {
+      hoverPopup.remove();
+    });
+
+    // Add click handler to marker element
+    markerEl.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent map click
+      hoverPopup.remove(); // Remove hover popup when clicking
+
+      // Remove any existing popups
+      const existingPopups = document.getElementsByClassName('mapboxgl-popup');
+      Array.from(existingPopups).forEach(popup => popup.remove());
+
+      // Set popup content and add to map
+      rsvpPopup.setDOMContent(popupContent);
+      marker.setPopup(rsvpPopup);
+      rsvpPopup.addTo(this.client.getMap());
+
+      // Create React root and render RSVP component
+      const root = createRoot(popupContent);
+      root.render(
+        React.createElement(EventRsvp, {
+          event: eventData,
+          onClose: () => {
+            rsvpPopup.remove();
+            root.unmount();
+          }
+        })
+      );
+    });
+
+    // Store marker reference
+    this.eventMarkers.set(eventData.id, marker);
+  }
 
   removeAnyMarkers(): void {
     if (this.marker) {
       this.marker.remove();
       this.marker = null;
     }
+    // Remove all event markers
+    this.eventMarkers.forEach(marker => marker.remove());
+    this.eventMarkers.clear();
   }
 }
 
@@ -290,5 +377,25 @@ class CameraServiceImpl implements CameraService {
 const mapboxClient = MapboxClientImpl.getInstance(
   process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "",
 );
+
+function createDynamicMarker(eventType: string, isSelected: boolean = false): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "custom-marker";
+
+  // Set fixed size
+  const size = isSelected ? "32px" : "24px";
+  el.style.width = size;
+  el.style.height = size;
+  
+  // Style the pin using SVG
+  el.style.backgroundImage = 'url("/pins.svg")';
+  el.style.backgroundSize = "contain";
+  el.style.backgroundRepeat = "no-repeat";
+  el.style.backgroundPosition = "center";
+  el.style.cursor = "pointer";
+  
+  return el;
+}
+
 
 export default mapboxClient;

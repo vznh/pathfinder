@@ -185,7 +185,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       >
         {/* Middle left */}
       </div>
-      <div className={middleCellBgClasses} />
+      <div className={middleCellBgClasses}/>
       <div
         className={`pointer-events-none flex items-center justify-end p-4 ${borderClasses}`}
       >
