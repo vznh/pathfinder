@@ -1,36 +1,38 @@
+// layouts/DashboardLayout.tsx
 import type React from "react";
 import { useState, useEffect } from "react"; // Import useState and useEffect
 import EmailModalButton from "@/components/specific/EmailModal";
 import DropdownMenu from "@/components/reusable/DropDownMenu";
 import { Button } from "@/components/reusable/Button"
 import { createClient } from "@/supabase/component";
-import mapboxClient from "@/services/MapboxClient";
 import { GoogleSignInModal } from "@/components/specific/SignInOverlay"; // Import the SignInOverlay component
 import {
   DotsVerticalIcon,
-  PersonIcon,
-  GearIcon,
-  InfoCircledIcon,
-  LayersIcon,
   MixerHorizontalIcon,
-  ReaderIcon,
-  ExitIcon,
   PlusCircledIcon,
   SewingPinFilledIcon,
   ClockIcon,
-  PaperPlaneIcon,
+  MagnifyingGlassIcon,
   Link2Icon,
-  LinkBreak2Icon,
+  LinkBreak2Icon
 } from "@radix-ui/react-icons";
 
 interface DashboardLayoutProps {
   development?: boolean;
   onWaypointModeToggle?: () => void;
+  searchInput: string;
+  onSearchInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  filteredSuggestions: { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[];
+  onSuggestionSelect: (s: {name: string; coordinates: [number, number]; source: "local" | "mapbox" }) => void;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   development = false,
   onWaypointModeToggle,
+  searchInput,
+  onSearchInputChange,
+  filteredSuggestions,
+  onSuggestionSelect,
 }) => {
   const supabase = createClient(); // Initialize Supabase client
   const [isAuthenticated, setIsAuthenticated] = useState(false); // State for authentication status
@@ -140,6 +142,34 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-start justify-center p-4 ${borderClasses}`}
       >
         {/* Top center */}
+        <div className="pointer-events-auto relative w-72">
+          <div className="flex items-center space-x-2 bg-white rounded-full px-3 py-2 shadow-md font-sans text-sm">
+            <MagnifyingGlassIcon className="w-5 h-5 text-gray-600" />
+            <input
+              type="text"
+              placeholder="Search…"
+              className="flex-grow bg-transparent outline-none placeholder:text-gray-400"
+              value={searchInput}
+              onChange={onSearchInputChange}
+            />
+          </div>
+          {filteredSuggestions.length > 0 && (
+            <ul className="absolute top-full left-0 mt-1 w-full bg-white rounded-md shadow-md z-40 max-h-60 overflow-y-auto">
+              {filteredSuggestions.map((s, i) => (
+                <li
+                  key={i}
+                  className="flex justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                  onClick={() => onSuggestionSelect(s)}
+                >
+                  <span>{s.name}</span>
+                  {s.source === "local" && (
+                    <span className="ml-2 text-xs text-gray-500">(UCSC)</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <div
