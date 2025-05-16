@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Loader2, X, Calendar, Clock, Mail, User } from "lucide-react"
 
 // Define the event data structure
-interface EventData {
+export interface EventData {
   id: string
   name: string
   type: string

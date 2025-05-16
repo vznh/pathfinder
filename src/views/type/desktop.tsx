@@ -2,6 +2,7 @@
 import Map from "@/components/Map";
 import { Button } from "@/components/reusable/Button";
 import mapboxClient from "@/services/MapboxClient";
+import { EventData } from "@/components/specific/RSVP";
 import {
   Cross2Icon,
   PlusCircledIcon,
@@ -126,7 +127,21 @@ const DesktopView: React.FC = () => {
         typeof row.longitude === "number" &&
         typeof row.latitude === "number"
       ) {
-        mapboxClient.events.addEventMarker([row.longitude, row.latitude]);
+        const eventData: EventData = {
+          id: row.id || "",
+          name: row.event || "",
+          type: row.type || "personal",
+          description: row.description || "",
+          date: row.date || new Date().toISOString().split('T')[0],
+          startTime: row.start_time || "00:00",
+          endTime: row.end_time || "23:59",
+          creator: {
+            name: row.user_id || "Anonymous",
+            email: "",
+            isClub: row.type === "club"
+          }
+        };
+        mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData);
       }
     }
   }, [events]);
