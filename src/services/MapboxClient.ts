@@ -134,7 +134,8 @@ class EventServiceImpl implements EventService {
     // TODO: Make this marker into a 3D renderage of a sewing pin
     this.marker = new mapboxgl.Marker({
       color: "#FFFFFF",
-      draggable: false
+      draggable: false,
+      anchor: "bottom", // places icon above the coordinate like a pin
     })
       .setLngLat(coords)
       .addTo(this.client.getMap());
@@ -189,6 +190,7 @@ class EventServiceImpl implements EventService {
     
     const marker = new mapboxgl.Marker({
       element: markerEl,
+      draggable: false,
       anchor: "bottom"
     })
       .setLngLat(coordinates)
