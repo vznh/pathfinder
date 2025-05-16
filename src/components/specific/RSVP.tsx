@@ -13,6 +13,7 @@ export interface EventData {
   date: string
   startTime: string
   endTime: string
+  rsvp_count: number | null
   creator: {
     name: string
     isClub: boolean
