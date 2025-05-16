@@ -115,22 +115,6 @@ const DesktopView: React.FC = () => {
     mapboxClient.camera.zoomTo(s.coordinates, 18, true);
   };
 
-  const events = useEventsStore(state => state.events);
-
-  useEffect(() => {
-    if (!events || events.length === 0) return;
-
-    for (const row of events) {
-      if (
-        row &&
-        typeof row.longitude === "number" &&
-        typeof row.latitude === "number"
-      ) {
-        mapboxClient.events.addEventMarker([row.longitude, row.latitude]);
-      }
-    }
-  }, [events]);
-
   useEffect(() => {
     if (waypointMode) {
       document.body.style.cursor = "crosshair";
@@ -248,8 +232,6 @@ const DesktopView: React.FC = () => {
         />
       )}
 
-      <DashboardLayout
-        development={false}
       <DashboardLayout
         development={false}
         onWaypointModeToggle={handleWaypointModeToggle}
