@@ -148,8 +148,34 @@ class EventServiceImpl implements EventService {
     
     const markerEl = createDynamicMarker(eventData.type);
     
-    // Create popup
-    const popup = new mapboxgl.Popup({
+    // Create hover popup
+    const hoverPopup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: [0, -8],
+      className: 'hover-popup'
+    });
+
+    // Create hover content
+    const hoverContent = document.createElement('div');
+    hoverContent.style.padding = '4px 8px';
+    hoverContent.style.textAlign = 'center';
+
+    const nameDiv = document.createElement('div');
+    nameDiv.textContent = eventData.name;
+    nameDiv.style.fontWeight = '500';
+    nameDiv.style.fontSize = '12px';
+    hoverContent.appendChild(nameDiv);
+
+    const countDiv = document.createElement('div');
+    countDiv.textContent = `${eventData.rsvp_count || 0} attending`;
+    countDiv.style.fontSize = '11px';
+    countDiv.style.opacity = '0.8';
+    countDiv.style.marginTop = '2px';
+    hoverContent.appendChild(countDiv);
+
+    // Create RSVP popup
+    const rsvpPopup = new mapboxgl.Popup({
       offset: [0, -12],
       closeButton: false,
       closeOnClick: false,
@@ -163,23 +189,36 @@ class EventServiceImpl implements EventService {
     
     const marker = new mapboxgl.Marker({
       element: markerEl,
-      anchor: "bottom", // This ensures the pin points to the exact location
+      anchor: "bottom"
     })
       .setLngLat(coordinates)
       .addTo(this.client.getMap());
 
+    // Add hover events
+    markerEl.addEventListener('mouseenter', () => {
+      hoverPopup
+        .setLngLat(coordinates)
+        .setDOMContent(hoverContent)
+        .addTo(this.client.getMap());
+    });
+
+    markerEl.addEventListener('mouseleave', () => {
+      hoverPopup.remove();
+    });
+
     // Add click handler to marker element
     markerEl.addEventListener('click', (e) => {
       e.stopPropagation(); // Prevent map click
+      hoverPopup.remove(); // Remove hover popup when clicking
 
       // Remove any existing popups
       const existingPopups = document.getElementsByClassName('mapboxgl-popup');
       Array.from(existingPopups).forEach(popup => popup.remove());
 
       // Set popup content and add to map
-      popup.setDOMContent(popupContent);
-      marker.setPopup(popup);
-      popup.addTo(this.client.getMap());
+      rsvpPopup.setDOMContent(popupContent);
+      marker.setPopup(rsvpPopup);
+      rsvpPopup.addTo(this.client.getMap());
 
       // Create React root and render RSVP component
       const root = createRoot(popupContent);
@@ -187,7 +226,7 @@ class EventServiceImpl implements EventService {
         React.createElement(EventRsvp, {
           event: eventData,
           onClose: () => {
-            popup.remove();
+            rsvpPopup.remove();
             root.unmount();
           }
         })
