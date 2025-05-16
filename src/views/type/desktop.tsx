@@ -206,7 +206,7 @@ const DesktopView: React.FC = () => {
             event: formData.name,
             latitude: lat,
             longitude: lng,
-            type: formData.type,
+            type: formData.tags,
             description: formData.description,
             date: formData.date,
             start_time: formData.startTime,

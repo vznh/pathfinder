@@ -4,7 +4,7 @@ export interface EventFormProps {
   coordinates: [number, number];
   onSubmit: (eventData: {
     name: string;
-    type: string;
+    tags: string;
     description: string;
     date: string;
     startTime: string;
@@ -16,7 +16,7 @@ export interface EventFormProps {
 const EventForm: React.FC<EventFormProps> = ({ coordinates, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
-    type: '',
+    tags: '',
     description: '',
     date: '',
     startTime: '',
@@ -52,21 +52,15 @@ const EventForm: React.FC<EventFormProps> = ({ coordinates, onSubmit, onCancel }
             <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none" />
           </div>
           <div>
-            <label className="block text-sm mb-1">Organization</label>
-            <select
-              name="Organization"
-              value={formData.type}
+            <label className="block text-sm mb-1">Tags</label>
+            <input type="text"
+              name="tags"
+              value={formData.tags}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none"
-            >
-              <option value="">Select an organization</option>
-              {organizationOptions.map((orgName) => (
-                <option key={orgName} value={orgName}>
-                  {orgName}
-                </option>
-              ))}
-            </select>
+            />
+              
           </div>
           <div>
             <label className="block text-sm mb-1">Description</label>
