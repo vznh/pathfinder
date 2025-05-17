@@ -1,4 +1,4 @@
-// views/type/desktop.tsx
+// views/type/DesktopView.tsx
 import Map from "@/components/Map";
 import mapboxClient from "@/services/MapboxClient";
 import { EventData } from "@/components/specific/RSVP";
@@ -6,8 +6,13 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/supabase/component";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import WaypointPopup from "@/components/specific/WaypointPopup";
-import EventForm from "@/components/specific/EventForm";
-import type { EventFormProps } from "@/components/specific/EventForm";
+
+// ⬇️ Renamed import
+import PersonalEventForm from "@/components/specific/PersonalEventForm";
+import type { PersonalEventFormProps } from "@/components/specific/PersonalEventForm";
+
+import OrganizationEventForm from "@/components/specific/OrganizationEventForm";
+import type { OrganizationEventFormProps } from "@/components/specific/OrganizationEventForm";
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
 
 const geocodingClient = mbxGeocoding({
@@ -44,11 +49,8 @@ const ucscLocations = [
 
 
 const DesktopView: React.FC = () => {
-  // modes
   const [waypointMode, setWaypointMode] = useState(false);
-  const [selectedWaypoint, setSelectedWaypoint] = useState<
-    [number, number] | null
-  >(null);
+  const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
   const [showAuthTest, setShowAuthTest] = useState(false);
   const supabase = createClient();
@@ -111,7 +113,6 @@ const DesktopView: React.FC = () => {
 
   useEffect(() => {
     if (!events || events.length === 0) return;
-
     for (const row of events) {
       if (
         row &&
@@ -163,10 +164,7 @@ const DesktopView: React.FC = () => {
   const openInGoogleMaps = () => {
     if (selectedWaypoint) {
       const [lng, lat] = selectedWaypoint;
-      window.open(
-        `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
-        "_blank",
-      );
+      window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, "_blank");
     }
   };
 
@@ -185,20 +183,18 @@ const DesktopView: React.FC = () => {
     }
   };
 
-  const handleCreateEvent = async (formData: Parameters<EventFormProps['onSubmit']>[0]) => {
-    console.log(formData)
+  const handleCreateEvent = async (formData: Parameters<PersonalEventFormProps['onSubmit']>[0]) => {
+    console.log(formData);
     setSelectedWaypoint(null);
     setShowEventForm(false);
-    // perform api call here, will just print to console for now
+
     if (selectedWaypoint) {
       const [lng, lat] = selectedWaypoint;
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        console.error('User not found or error:', userError)
-      }
-
-      else {
+        console.error('User not found or error:', userError);
+      } else {
         const { error: insertError } = await supabase
           .from('events_v0')
           .insert({
@@ -211,17 +207,16 @@ const DesktopView: React.FC = () => {
             date: formData.date,
             start_time: formData.startTime,
             end_time: formData.endTime
-          })
+          });
 
         if (insertError) {
-          console.error('Insert error:', insertError)
+          console.error('Insert error:', insertError);
         } else {
-          console.log('Row inserted successfully')
+          console.log('Row inserted successfully');
         }
       }
     }
   };
-
 
   const handleClosePopup = () => {
     setSelectedWaypoint(null);
@@ -247,7 +242,12 @@ const DesktopView: React.FC = () => {
       )}
 
       {selectedWaypoint && showEventForm && (
-        <EventForm
+        /*<PersonalEventForm
+          coordinates={selectedWaypoint}
+          onSubmit={handleCreateEvent}
+          onCancel={handleClosePopup}
+        />*/
+        <PersonalEventForm
           coordinates={selectedWaypoint}
           onSubmit={handleCreateEvent}
           onCancel={handleClosePopup}
