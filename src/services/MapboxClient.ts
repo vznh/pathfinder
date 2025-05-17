@@ -147,7 +147,7 @@ class EventServiceImpl implements EventService {
         "Map instance isn't initialized. Caught from func addEventMarker"
       );
     
-    const markerEl = createDynamicMarker(eventData.type);
+    const markerEl = createDynamicMarker(eventData.user_email);
     
     // Create hover popup
     const hoverPopup = new mapboxgl.Popup({
@@ -380,7 +380,7 @@ const mapboxClient = MapboxClientImpl.getInstance(
   process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "",
 );
 
-function createDynamicMarker(eventType: string, isSelected: boolean = false): HTMLElement {
+function createDynamicMarker(event_user_email: string | null, isSelected: boolean = false): HTMLElement {
   const el = document.createElement("div");
   el.className = "custom-marker";
 
@@ -389,22 +389,11 @@ function createDynamicMarker(eventType: string, isSelected: boolean = false): HT
   el.style.height = isSelected ? "32px" : "24px";
 
   // Dynamic icon or color logic
-  switch (eventType) {
-    case "club":
-      el.style.backgroundImage = 'url("/pins.svg")';
-      el.style.backgroundColor = "#ff0000";
-      break;
-    case "college":
-      el.style.backgroundImage = 'url("/pins.svg")';
-      el.style.backgroundColor = "#00ff00";
-      break;
-    case "personal":
-      el.style.backgroundImage = 'url("/pins.svg")';
-      el.style.backgroundColor = "#0000ff";
-      break;
-    default:
-      el.style.backgroundImage = 'url("/pins.svg")';
-      el.style.backgroundColor = "#000000";
+  el.style.backgroundImage = 'url("/pins.svg")';
+  if (event_user_email) {
+    el.style.backgroundColor = "#ff6b6b"; // orange
+  } else {
+    el.style.backgroundColor = "#4dabf7"; // blue
   }
 
   // Style formatting
