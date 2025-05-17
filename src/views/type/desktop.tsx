@@ -126,6 +126,8 @@ const DesktopView: React.FC = () => {
           startTime: row.start_time || "00:00",
           endTime: row.end_time || "23:59",
           rsvp_count: row.rsvp_count,
+          user_email: row.user_email,
+          organization_name: row.organization_name,
           creator: {
             name: row.user_email || row.organization_name || 'ERROR',
             isClub: row.type === "club"
