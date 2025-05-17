@@ -6,7 +6,7 @@ import { type Database } from "@/models/supabase_types";
 import MapView from "@/views";
 
 const Homepage: NextPage<{
-  events: Database["public"]["Views"]["events"]["Row"][];
+  events: Database["authenticated"]["Views"]["events"]["Row"][];
 }> = ({ events }) => {
   return (
     <div>
@@ -18,7 +18,7 @@ const Homepage: NextPage<{
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createClient(context);
-  const { data: events } = await supabase.from("events").select();
+  const { data: events , error} = await supabase.from("events").select();
   return {
     props: {
       events: events,

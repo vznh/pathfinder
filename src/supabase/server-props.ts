@@ -6,6 +6,7 @@ export function createClient({ req, res }: GetServerSidePropsContext) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      db: { schema: 'authenticated' },
       cookies: {
         getAll() {
           return Object.keys(req.cookies).map((name) => ({ name, value: req.cookies[name] || '' }))
