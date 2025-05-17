@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  public: {
+  authenticated: {
     Tables: {
       events_v0: {
         Row: {
@@ -75,21 +75,21 @@ export type Database = {
           email: string | null
           id: string
           name: string
-          type: Database["public"]["Enums"]["organization_type"] | null
+          type: "club" | "college" | null
         }
         Insert: {
           created_at?: string
           email?: string | null
           id?: string
           name: string
-          type?: Database["public"]["Enums"]["organization_type"] | null
+          type?: "club" | "college" | null
         }
         Update: {
           created_at?: string
           email?: string | null
           id?: string
           name?: string
-          type?: Database["public"]["Enums"]["organization_type"] | null
+          type?: "club" | "college" | null
         }
         Relationships: []
       }
@@ -214,7 +214,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      organization_type: "club" | "college"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -328,9 +328,7 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  public: {
-    Enums: {
-      organization_type: ["club", "college"],
-    },
+  authenticated: {
+    Enums: {},
   },
 } as const

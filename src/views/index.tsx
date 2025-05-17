@@ -7,7 +7,7 @@ import { type Database } from "@/models/supabase_types";
 import { useEventsStore } from '@/stores/useEventsStore';
 
 interface MapViewProps {
-  events: Database['public']['Views']['events']['Row'][]
+  events: Database['authenticated']['Views']['events']['Row'][]
 }
 
 const MapView = ({ events }: MapViewProps) => {
