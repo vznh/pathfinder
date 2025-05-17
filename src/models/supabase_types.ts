@@ -209,6 +209,28 @@ export type Database = {
         }
         Relationships: []
       }
+      rsvp_count: {
+        Row: {
+          event_id: string | null
+          rsvps: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_attending_events_v0_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_attending_events_v0_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_v0"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
