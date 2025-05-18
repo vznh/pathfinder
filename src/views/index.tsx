@@ -2,17 +2,21 @@
 import { useState, useEffect } from 'react';
 import DesktopView from "./type/desktop";
 import MobileView from "./type/mobile";
-import { type Database } from "@/models/supabase_types";
+import type {EventRow, OrgRow} from "@/models/types"
 
 import { useEventsStore } from '@/stores/useEventsStore';
+import { useOrgsStore } from '@/stores/useOrgsStore';
+
 
 interface MapViewProps {
-  events: Database['authenticated']['Views']['events']['Row'][]
+  events: EventRow[],
+  orgs: OrgRow[]
 }
 
-const MapView = ({ events }: MapViewProps) => {
+const MapView = ({ events, orgs }: MapViewProps) => {
   const [windowSize, setWindowSize] = useState<{ width: number; height: number } | null>(null);
   const setEvents = useEventsStore(state => state.setEvents);
+  const setOrgs = useOrgsStore(state => state.setOrgs);
 
   useEffect(() => {
     const updateSize = () => {
@@ -36,6 +40,15 @@ const MapView = ({ events }: MapViewProps) => {
       setEvents(events);
     }
   }, [events, setEvents]);
+
+  useEffect(() => {
+    if (!orgs) {
+      console.error("ERROR: No orgs were loaded.");
+    } else {
+      console.log(orgs)
+      setOrgs(orgs);
+    }
+  }, [orgs, setOrgs]);
 
   const isDesktop = windowSize && windowSize.width >= 768;
   const ViewComponent = isDesktop ? DesktopView : MobileView;
