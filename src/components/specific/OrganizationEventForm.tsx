@@ -1,6 +1,7 @@
 // components/specific/OrganizationEventForm.tsx
 import React, { useEffect, useState } from "react";
 import BaseEventForm from "../reusable/BaseEventForm";
+import { useOrgsStore } from "@/stores/useOrgsStore";
 
 // ✅ Define props explicitly for consistency
 export interface OrganizationEventFormProps {
@@ -32,11 +33,11 @@ const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
 
   const [options, setOptions] = useState<string[]>([]);
 
-  useEffect(() => {
-    // Placeholder options for now
-    setOptions(["Personal", "School Club", "Company", "Volunteer Group"]);
+  const orgs = useOrgsStore(state => state.orgs);
 
-    // --- Place Supabase call here ---
+  useEffect(() => {
+    const options = orgs.map(({name}) => name)
+    setOptions(options);
   }, []);
 
   const handleChange = (

@@ -5,12 +5,11 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/supabase/component";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import WaypointPopup from "@/components/specific/WaypointPopup";
-
 import PersonalEventForm from "@/components/specific/PersonalEventForm";
 import type { PersonalEventFormProps } from "@/components/specific/PersonalEventForm";
 import OrganizationEventForm from "@/components/specific/OrganizationEventForm";
-import type { OrganizationEventFormProps } from "@/components/specific/OrganizationEventForm";
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
+import { useEventsStore } from "@/stores/useEventsStore";
 
 const geocodingClient = mbxGeocoding({
   accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!,
@@ -42,7 +41,7 @@ const ucscLocations = [
   { name: "Cafe Iveta", latitude: 36.9985, longitude: -122.0560 },
   { name: "Pogonip", latitude: 36.9990, longitude: -122.0300 },
   { name: "Oakes Meadow", latitude: 36.9880, longitude: -122.0650 },
-];import { useEventsStore } from "@/stores/useEventsStore";
+]
 
 
 const DesktopView: React.FC = () => {
