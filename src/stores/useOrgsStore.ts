@@ -1,33 +1,33 @@
-// stores/useEventsStore
+// stores/useOrgsStore
 import { create } from "zustand";
-import { EventRow } from "@/models/types"
+import type { OrgRow } from "@/models/types"; 
 
-export interface EventsState {
-  events: EventRow[];
+export interface OrgsState {
+  orgs: OrgRow[];
   loading: boolean;
   error: string | null;
 }
 
-export interface EventsActions {
-  setEvents: (events: EventRow[]) => void;
+export interface OrgsActions {
+  setOrgs: (orgs: OrgRow[]) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  // add an action to fetch events if they weren't from SSR, e.g.:
-  // fetchEvents: () => Promise<void>;
+  // add an action to fetch orgs if they weren't from SSR, e.g.:
+  // fetchOrgs: () => Promise<void>;
 }
 
-export type EventsStore = EventsState & EventsActions;
+export type OrgsStore = OrgsState & OrgsActions;
 
-export const useEventsStore = create<EventsStore>((set) => ({
+export const useOrgsStore = create<OrgsStore>((set) => ({
   // initial state
-  events: [],
+  orgs: [],
   loading: true,
   error: null,
 
   // possible actions
-  setEvents: (events) => set((state) => ({
+  setOrgs: (orgs) => set((state) => ({
     ...state,
-    events: events,
+    orgs: orgs,
     loading: false,
     error: null
   })),

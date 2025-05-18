@@ -5,6 +5,8 @@
  */
 
 /* */
+import type { Database } from '@/models/supabase_types'
+
 export type ButtonLayoutPosition =
 	| "top-left"
 	| "top-right"
@@ -43,3 +45,6 @@ interface GeoJSON {
 	type: "FeatureCollection";
 	features: Feature[];
 }
+
+export type EventRow = Database['authenticated']['Views']['events']['Row']
+export type OrgRow = Pick<Database['authenticated']['Tables']['organizations_v0']['Row'], 'id' | 'name'>

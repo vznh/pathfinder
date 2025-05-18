@@ -1,17 +1,8 @@
 // views/type/desktop.tsx
 import Map from "@/components/Map";
-import { Button } from "@/components/reusable/Button";
 import mapboxClient from "@/services/MapboxClient";
 import { EventData } from "@/components/specific/RSVP";
-import {
-  Cross2Icon,
-  PlusCircledIcon,
-  ThickArrowUpIcon,
-  PersonIcon,
-} from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
-import { Database } from "@/models/supabase_types";
-import EmailModalButton from "@/components/specific/EmailModal";
 import { createClient } from "@/supabase/component";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import WaypointPopup from "@/components/specific/WaypointPopup";
