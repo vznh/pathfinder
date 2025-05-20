@@ -10,6 +10,7 @@ import type { PersonalEventFormProps } from "@/components/specific/PersonalEvent
 import OrganizationEventForm from "@/components/specific/OrganizationEventForm";
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
 import { useEventsStore } from "@/stores/useEventsStore";
+import { useOrgsStore } from "@/stores/useOrgsStore";
 
 const geocodingClient = mbxGeocoding({
   accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!,
@@ -49,6 +50,7 @@ const DesktopView: React.FC = () => {
   const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
   const [formType, setFormType] = useState<'personal' | 'org'>('personal');
+  const orgs = useOrgsStore(state => state.orgs);
 
   const supabase = createClient();
   // search bar state
@@ -179,8 +181,7 @@ const DesktopView: React.FC = () => {
       if (userError || !user) {
         console.error("User not found or error:", userError);
       } else {
-        const { error: insertError } = await supabase.from("events_v0").insert({
-          user_id: user.id,
+        const insertData: any = {
           event: formData.name,
           latitude: lat,
           longitude: lng,
@@ -189,8 +190,25 @@ const DesktopView: React.FC = () => {
           date: formData.date,
           start_time: formData.startTime,
           end_time: formData.endTime,
-        });
+        };
 
+        const org = orgs.find(o => o.name === formData.tags);   
+        let selectedOrgId: string | undefined;     
+        if (org){
+          selectedOrgId = org.id;
+        } else {
+          console.error("Organization not in database");
+        }
+
+        // Dynamically add either user_id or organization_id
+        if (formType === 'personal') {
+          insertData.user_id = user.id;
+        } else if (formType === 'org') {
+          insertData.organization_id = selectedOrgId; // Replace with actual organization ID
+        }
+
+        const { error: insertError } = await supabase.from("events_v0").insert(insertData);
+        
         if (insertError) {
           console.error("Insert error:", insertError);
         } else {
