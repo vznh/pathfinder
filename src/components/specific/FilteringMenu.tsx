@@ -64,7 +64,7 @@ const FilteringMenu: React.FC<FilteringMenuProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="bg-white">
         <DialogHeader>
           <DialogTitle>Filter Events</DialogTitle>
         </DialogHeader>
