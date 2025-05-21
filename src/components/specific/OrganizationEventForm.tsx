@@ -33,12 +33,12 @@ const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
 
   const [options, setOptions] = useState<string[]>([]);
 
-  const orgs = useOrgsStore(state => state.orgs);
+  const orgs = useOrgsStore((state) => state.orgs);
 
   useEffect(() => {
     const options = orgs.map(({name}) => name)
     setOptions(options);
-  }, []);
+  }, [orgs]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>

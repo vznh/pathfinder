@@ -1,6 +1,6 @@
 // stores/useOrgsStore
 import { create } from "zustand";
-import type { OrgRow } from "@/models/types"; 
+import { OrgRow } from "@/models/types"; 
 
 export interface OrgsState {
   orgs: OrgRow[];
