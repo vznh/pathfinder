@@ -19,6 +19,7 @@
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",
     "add": "^2.0.6",
+    "add-to-calendar-button-react": "^2.8.9",
     "class-variance-authority": "^0.7.1",
     "install": "^0.13.0",
     "lucide-react": "^0.510.0",
