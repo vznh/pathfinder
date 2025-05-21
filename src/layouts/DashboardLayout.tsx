@@ -24,6 +24,8 @@ interface DashboardLayoutProps {
   onSearchInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   filteredSuggestions: { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[];
   onSuggestionSelect: (s: {name: string; coordinates: [number, number]; source: "local" | "mapbox" }) => void;
+  formType?: 'personal' | 'org';               //  NEW
+  onFormTypeToggle?: () => void;               //  NEW
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -33,6 +35,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSearchInputChange,
   filteredSuggestions,
   onSuggestionSelect,
+  formType,
+  onFormTypeToggle,
 }) => {
   const supabase = createClient(); // Initialize Supabase client
   const [isAuthenticated, setIsAuthenticated] = useState(false); // State for authentication status
@@ -87,6 +91,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     }
     // Supabase listener handles closing overlay and setting auth state on success
   };
+
 
 
   const borderClasses = development
@@ -176,7 +181,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-start justify-end p-4 ${borderClasses}`}
       >
         {/* Top right */}
-
+        {onFormTypeToggle && formType && (
+          <button
+            onClick={onFormTypeToggle}
+            className="pointer-events-auto text-xs bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600"
+          >
+            {formType === "personal" ? "Switch to Org" : "Switch to Personal"}
+          </button>
+        )}
       </div>
 
       {/* Middle row */}
