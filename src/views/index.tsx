@@ -5,7 +5,7 @@ import MobileView from "./type/mobile";
 import type {EventRow, OrgRow} from "@/models/types"
 
 import { useEventsStore } from '@/stores/useEventsStore';
-import { useOrgsStore } from '@/stores/useOrgsStore';
+import { OrgsStore, useOrgsStore } from '@/stores/useOrgsStore';
 
 
 interface MapViewProps {
@@ -16,7 +16,7 @@ interface MapViewProps {
 const MapView = ({ events, orgs }: MapViewProps) => {
   const [windowSize, setWindowSize] = useState<{ width: number; height: number } | null>(null);
   const setEvents = useEventsStore(state => state.setEvents);
-  const setOrgs = useOrgsStore(state => state.setOrgs);
+  const setOrgs = useOrgsStore((state: OrgsStore) => state.setOrgs);
 
   useEffect(() => {
     const updateSize = () => {
