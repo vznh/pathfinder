@@ -38,7 +38,7 @@ const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
   useEffect(() => {
     const options = orgs.map(({name}) => name)
     setOptions(options);
-  }, []);
+  }, [orgs]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
