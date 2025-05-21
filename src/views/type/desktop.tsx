@@ -127,6 +127,8 @@ const DesktopView: React.FC = () => {
           startTime: row.start_time || "00:00",
           endTime: row.end_time || "23:59",
           rsvp_count: row.rsvp_count,
+          longitude: row.longitude,
+          latitude: row.latitude,
           creator: {
             name: row.user_email || row.organization_name || 'ERROR',
             isClub: row.type === "club"

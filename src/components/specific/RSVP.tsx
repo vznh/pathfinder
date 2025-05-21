@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { Loader2, X, Calendar, Clock, Mail, User } from "lucide-react"
+import { Loader2, X, Calendar, Clock, Mail, User, MapPin } from "lucide-react"
 import { AddToCalendarButton } from 'add-to-calendar-button-react';
 import { createClient } from "@/supabase/component";
 
@@ -14,6 +14,8 @@ export interface EventData {
   startTime: string
   endTime: string
   rsvp_count: number | null
+  longitude: number | null
+  latitude: number | null
   creator: {
     name: string
     isClub: boolean
@@ -91,6 +93,23 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
     return timeString // Calendar expects HH:MM format
   }
 
+  // Format location with coordinates for calendar
+  const formatLocationForCalendar = () => {
+    if (event.latitude && event.longitude) {
+      // Format as coordinates that Google Calendar can understand
+      return `${event.latitude},${event.longitude}`
+    }
+    return ""
+  }
+
+  // Display location coordinates in a user-friendly way
+  const formatLocationDisplay = () => {
+    if (event.latitude && event.longitude) {
+      return `${event.latitude.toFixed(6)}, ${event.longitude.toFixed(6)}`
+    }
+    return ""
+  }
+
   if (submitted) {
     return (
       <div className="rounded-lg border border-gray-700 bg-gray-800 text-white shadow-lg w-full max-w-xs p-4 text-center animate-in fade-in">
@@ -137,6 +156,13 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
             {formatTime(event.startTime)} - {formatTime(event.endTime)}
           </span>
         </div>
+        {/* Location display */}
+        {formatLocationDisplay() && (
+          <div className="flex items-center text-xs text-gray-300">
+            <MapPin className="h-3 w-3 mr-1" />
+            <span>{formatLocationDisplay()}</span>
+          </div>
+        )}
       </div>
       
       <div className="p-3 flex flex-col gap-3">
@@ -149,6 +175,7 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
             endDate={formatCalendarDate(event.date)}
             startTime={formatCalendarTime(event.startTime)}
             endTime={formatCalendarTime(event.endTime)}
+            location={formatLocationForCalendar()}
             timeZone="America/Los_Angeles"
             options={['Google']}
             buttonStyle="round"
