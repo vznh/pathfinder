@@ -37,6 +37,7 @@ const MapView = ({ events, orgs }: MapViewProps) => {
     if (!events) {
       console.error("ERROR: No events were loaded.");
     } else {
+      console.log("Events loaded from server:", events);
       setEvents(events);
     }
   }, [events, setEvents]);

@@ -1,11 +1,12 @@
 // layouts/DashboardLayout.tsx
 import type React from "react";
-import { useState, useEffect } from "react"; // Import useState and useEffect
+import { useState, useEffect } from "react";
 import EmailModalButton from "@/components/specific/EmailModal";
 import DropdownMenu from "@/components/reusable/DropDownMenu";
 import { Button } from "@/components/reusable/Button"
 import { createClient } from "@/supabase/component";
-import { GoogleSignInModal } from "@/components/specific/SignInOverlay"; // Import the SignInOverlay component
+import { GoogleSignInModal } from "@/components/specific/SignInOverlay";
+import FilteringMenu from "@/components/specific/FilteringMenu"; // Import FilteringMenu
 import {
   DotsVerticalIcon,
   MixerHorizontalIcon,
@@ -24,6 +25,19 @@ interface DashboardLayoutProps {
   onSearchInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   filteredSuggestions: { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[];
   onSuggestionSelect: (s: {name: string; coordinates: [number, number]; source: "local" | "mapbox" }) => void;
+  // Add new props for filter state and handler
+  onFilterChange: (filters: {
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
+  }) => void;
+  currentFilters: {
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
+  };
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -33,11 +47,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSearchInputChange,
   filteredSuggestions,
   onSuggestionSelect,
+  // Destructure new props
+  onFilterChange,
+  currentFilters
 }) => {
   const supabase = createClient(); // Initialize Supabase client
   const [isAuthenticated, setIsAuthenticated] = useState(false); // State for authentication status
-  const [isOverlayOpen, setIsOverlayOpen] = useState(false); // State for overlay visibility
+  const [isSignInOverlayOpen, setIsSignInOverlayOpen] = useState(false); // State for sign-in overlay visibility
   const [signInError, setSignInError] = useState<string | null>(null); // State for sign-in errors
+  // Add state for filtering menu visibility
+  const [isFilteringMenuOpen, setIsFilteringMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check initial auth state
@@ -52,7 +71,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       setIsAuthenticated(!!session?.user);
       // Close overlay and clear error on successful sign in
       if (event === 'SIGNED_IN') {
-        setIsOverlayOpen(false);
+        setIsSignInOverlayOpen(false);
         setSignInError(null);
       }
     });
@@ -63,12 +82,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     };
   }, [supabase]);
 
-  const handleOpenOverlay = () => {
-    setIsOverlayOpen(true);
+  const handleOpenSignInOverlay = () => {
+    setIsSignInOverlayOpen(true);
   };
 
-  const handleCloseOverlay = () => {
-    setIsOverlayOpen(false);
+  const handleCloseSignInOverlay = () => {
+    setIsSignInOverlayOpen(false);
     setSignInError(null); // Clear error when closing
   };
 
@@ -86,6 +105,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       setSignInError('Failed to sign in with Google. Please try again.'); // Set a user-friendly error message
     }
     // Supabase listener handles closing overlay and setting auth state on success
+  };
+
+  // Add handlers for filtering menu visibility
+  const handleOpenFilteringMenu = () => {
+    setIsFilteringMenuOpen(true);
+  };
+
+  const handleCloseFilteringMenu = () => {
+    setIsFilteringMenuOpen(false);
   };
 
 
@@ -115,9 +143,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             >
               <ClockIcon className="w-5 h-5" />
             </button>
+            {/* "Filters" button to open the FilteringMenu */}
             <button
               className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
               aria-label="Filters"
+              onClick={handleOpenFilteringMenu} // Add onClick handler
             >
               <MixerHorizontalIcon className="w-5 h-5" />
             </button>
@@ -201,7 +231,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <Button
           icon={ isAuthenticated ? <Link2Icon className="w-4 h-4"/> : <LinkBreak2Icon className="w-4 h-4"/> }
           position={ "bottom-left" }
-          onClick={isAuthenticated ? undefined : handleOpenOverlay} // Open overlay only if not authenticated
+          onClick={isAuthenticated ? undefined : handleOpenSignInOverlay} // Open overlay only if not authenticated
         />
       </div>
       <div
@@ -218,10 +248,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* SignInOverlay component */}
       <GoogleSignInModal
-        isOpen={isOverlayOpen}
-        onClose={handleCloseOverlay}
+        isOpen={isSignInOverlayOpen}
+        onClose={handleCloseSignInOverlay}
         onSignInClick={handleGoogleSignIn}
         signInError={signInError}
+      />
+
+      {/* FilteringMenu component */}
+      {/* Pass visibility state, close handler, filter change handler, and current filters */}
+      <FilteringMenu
+        isOpen={isFilteringMenuOpen}
+        onClose={handleCloseFilteringMenu}
+        onApplyFilters={onFilterChange}
+        initialFilters={currentFilters}
       />
     </div>
   );
