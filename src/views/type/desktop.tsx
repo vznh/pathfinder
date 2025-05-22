@@ -57,12 +57,36 @@ const DesktopView: React.FC = () => {
     { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[]
   >([]);
 
-  // Add filter state
-  const [currentFilters, setCurrentFilters] = useState({
-    startDate: "",
-    endDate: "",
-    startTime: "",
-    endTime: ""
+  // Add filter state with default values
+  const [currentFilters, setCurrentFilters] = useState(() => {
+    const now = new Date();
+
+    // Calculate and format start time
+    const startHour = now.getHours();
+    const startMinute = now.getMinutes();
+    const startTimeStr = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
+
+    // Calculate end time (current time + 4 hours)
+    const endTime = new Date(now.getTime() + 4 * 60 * 60 * 1000);
+    const endHour = endTime.getHours();
+    const endMinute = endTime.getMinutes();
+    const endTimeStr = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`;
+
+
+    // Calculate default date (today) in YYYY-MM-DD format
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const day = String(today.getDate()).padStart(2, '0');
+    const defaultDate = `${year}-${month}-${day}`;
+
+
+    return {
+      startDate: defaultDate,
+      endDate: defaultDate, // Default date range is still today
+      startTime: startTimeStr,   // Default to current time
+      endTime: endTimeStr      // Default to current time + 4 hours
+    };
   });
 
   // Add filter change handler
@@ -160,12 +184,15 @@ const DesktopView: React.FC = () => {
         if (eventDate === null) continue;
 
 
-        // Check if event matches filter criteria
+        // Check if event matches date filter
         const matchesDateFilter =
           (!currentFilters.startDate || eventDate >= currentFilters.startDate) &&
           (!currentFilters.endDate || eventDate <= currentFilters.endDate);
 
-        // For time filtering, we check if the event's time range overlaps with the filter's time range
+        // Check if event matches time filter (strict containment or equality)
+        // An event matches if:
+        // - No start time filter OR event start time exists AND event start time >= filter start time
+        // - No end time filter OR event end time exists AND event end time <= filter end time
         const matchesTimeFilter =
            (!currentFilters.startTime || (eventStartTime && eventStartTime >= currentFilters.startTime)) &&
            (!currentFilters.endTime || (eventEndTime && eventEndTime <= currentFilters.endTime));
@@ -342,8 +369,8 @@ const DesktopView: React.FC = () => {
         onSearchInputChange={handleSearchChange}
         filteredSuggestions={filteredSuggestions}
         onSuggestionSelect={handleSuggestionSelect}
-        onFilterChange={handleFilterChange}
-        currentFilters={currentFilters}
+        onFilterChange={handleFilterChange} // Pass filter change handler
+        currentFilters={currentFilters} // Pass current filters state
       />
     </div>
   );
