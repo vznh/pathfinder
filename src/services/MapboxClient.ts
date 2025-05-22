@@ -122,6 +122,32 @@ class EventServiceImpl implements EventService {
     this.client = client;
   }
 
+  createDynamicMarker(event_user_email: string | null, isSelected: boolean = false): HTMLElement {
+    const el = document.createElement("div");
+    el.className = "custom-marker";
+
+    // Size adjustments
+    el.style.width = isSelected ? "32px" : "24px";
+    el.style.height = isSelected ? "32px" : "24px";
+
+    // Dynamic icon or color logic
+    el.style.backgroundImage = 'url("/pins.svg")';
+    if (event_user_email) {
+      el.style.backgroundColor = "#ff6b6b"; // orange
+    } else {
+      el.style.backgroundColor = "#4dabf7"; // blue
+    }
+
+    // Style formatting
+    el.style.backgroundSize = "contain";
+    el.style.backgroundRepeat = "no-repeat";
+    el.style.backgroundPosition = "center";
+    el.style.borderRadius = "50%";
+    el.style.cursor = "pointer";
+
+    return el;
+  }
+
   addBaseMarker(coords: [number, number]): void {
     if (!this.client.getMap())
       throw new Error(
@@ -147,7 +173,7 @@ class EventServiceImpl implements EventService {
         "Map instance isn't initialized. Caught from func addEventMarker"
       );
     
-    const markerEl = createDynamicMarker(eventData.user_email);
+    const markerEl = this.createDynamicMarker(eventData.user_email);
     
     // Create hover popup
     const hoverPopup = new mapboxgl.Popup({
@@ -379,32 +405,6 @@ class CameraServiceImpl implements CameraService {
 const mapboxClient = MapboxClientImpl.getInstance(
   process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "",
 );
-
-function createDynamicMarker(event_user_email: string | null, isSelected: boolean = false): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "custom-marker";
-
-  // Size adjustments
-  el.style.width = isSelected ? "32px" : "24px";
-  el.style.height = isSelected ? "32px" : "24px";
-
-  // Dynamic icon or color logic
-  el.style.backgroundImage = 'url("/pins.svg")';
-  if (event_user_email) {
-    el.style.backgroundColor = "#ff6b6b"; // orange
-  } else {
-    el.style.backgroundColor = "#4dabf7"; // blue
-  }
-
-  // Style formatting
-  el.style.backgroundSize = "contain";
-  el.style.backgroundRepeat = "no-repeat";
-  el.style.backgroundPosition = "center";
-  el.style.borderRadius = "50%";
-  el.style.cursor = "pointer";
-
-  return el;
-}
 
 
 export default mapboxClient;
