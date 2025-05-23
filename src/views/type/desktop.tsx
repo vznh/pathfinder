@@ -10,6 +10,7 @@ import EventForm from "@/components/specific/EventForm";
 import type { EventFormProps } from "@/components/specific/EventForm";
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
 import { useEventsStore } from "@/stores/useEventsStore";
+import { useEventFilters } from "@/hooks/useEventFilters";
 
 const geocodingClient = mbxGeocoding({
   accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!,
@@ -57,49 +58,8 @@ const DesktopView: React.FC = () => {
     { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[]
   >([]);
 
-  // Add filter state with default values
-  const [currentFilters, setCurrentFilters] = useState(() => {
-    const now = new Date();
-
-    // Calculate and format start time
-    const startHour = now.getHours();
-    const startMinute = now.getMinutes();
-    const startTimeStr = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
-
-    // Calculate end time (current time + 4 hours)
-    const endTime = new Date(now.getTime() + 4 * 60 * 60 * 1000);
-    const endHour = endTime.getHours();
-    const endMinute = endTime.getMinutes();
-    const endTimeStr = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`;
-
-
-    // Calculate default date (today) in YYYY-MM-DD format
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-    const day = String(today.getDate()).padStart(2, '0');
-    const defaultDate = `${year}-${month}-${day}`;
-
-
-    return {
-      startDate: defaultDate,
-      endDate: defaultDate, // Default date range is still today
-      startTime: startTimeStr,   // Default to current time
-      endTime: endTimeStr      // Default to current time + 4 hours
-    };
-  });
-
-  // Add filter change handler
-  const handleFilterChange = (filters: {
-    startDate: string;
-    endDate: string;
-    startTime: string;
-    endTime: string;
-  }) => {
-    setCurrentFilters(filters);
-    // Clear existing markers - This is now done in the useEffect that adds markers
-    // mapboxClient.events.removeAnyMarkers();
-  };
+  const events = useEventsStore(state => state.events);
+  const { currentFilters, handleFilterChange } = useEventFilters(events);
 
   // handler for typing in the search box
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,101 +109,6 @@ const DesktopView: React.FC = () => {
     setFilteredSuggestions([]);
     mapboxClient.camera.zoomTo(s.coordinates, 18, true);
   };
-
-  const events = useEventsStore(state => state.events);
-
-  // Effect to add event markers based on events and filter criteria
-  useEffect(() => {
-    if (!events || events.length === 0) {
-      // If no events or events become empty, remove all markers
-       mapboxClient.events.removeAnyMarkers();
-       return;
-    }
-
-    // Clear existing markers before adding filtered ones
-    mapboxClient.events.removeAnyMarkers();
-
-
-    console.log('Current Filters:', currentFilters);
-    console.log('Total Events:', events.length);
-
-    let displayedEventsCount = 0;
-
-    for (const row of events) {
-      if (
-        row &&
-        typeof row.longitude === "number" &&
-        typeof row.latitude === "number"
-      ) {
-        // Apply date and time filters
-        const eventDate = row.date;
-        const eventStartTime = row.start_time;
-        const eventEndTime = row.end_time;
-
-        // Only filter if eventDate is not null
-        if (eventDate === null) continue;
-
-
-        // Check if event matches date filter
-        const matchesDateFilter =
-          (!currentFilters.startDate || eventDate >= currentFilters.startDate) &&
-          (!currentFilters.endDate || eventDate <= currentFilters.endDate);
-
-        // Check if event matches time filter (strict containment or equality)
-        // An event matches if:
-        // - No start time filter OR event start time exists AND event start time >= filter start time
-        // - No end time filter OR event end time exists AND event end time <= filter end time
-        const matchesTimeFilter =
-           (!currentFilters.startTime || (eventStartTime && eventStartTime >= currentFilters.startTime)) &&
-           (!currentFilters.endTime || (eventEndTime && eventEndTime <= currentFilters.endTime));
-
-
-        if (matchesDateFilter && matchesTimeFilter) {
-          displayedEventsCount++;
-          console.log('Displaying Event:', {
-            name: row.event,
-            date: eventDate,
-            startTime: eventStartTime,
-            endTime: eventEndTime,
-            matchesDateFilter,
-            matchesTimeFilter,
-            filterStartTime: currentFilters.startTime,
-            filterEndTime: currentFilters.endTime
-          });
-
-          const eventData: EventData = {
-            id: row.id || "ERROR",
-            name: row.event || "",
-            type: row.type || "personal",
-            description: row.description || "",
-            date: eventDate,
-            startTime: eventStartTime || "00:00",
-            endTime: eventEndTime || "23:59",
-            rsvp_count: row.rsvp_count,
-            creator: {
-              name: row.user_email || row.organization_name || 'ERROR',
-              isClub: row.type === "club"
-            }
-          };
-          mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData);
-        } else {
-          console.log('Filtered Out Event:', {
-            name: row.event,
-            date: eventDate,
-            startTime: eventStartTime,
-            endTime: eventEndTime,
-            matchesDateFilter,
-            matchesTimeFilter,
-            filterStartTime: currentFilters.startTime,
-            filterEndTime: currentFilters.endTime
-          });
-        }
-      }
-    }
-
-    console.log('Events Displayed:', displayedEventsCount);
-    console.log('Events Filtered Out:', events.length - displayedEventsCount);
-  }, [events, currentFilters]);
 
   useEffect(() => {
     if (waypointMode) {
@@ -330,7 +195,6 @@ const DesktopView: React.FC = () => {
     }
   };
 
-
   const handleClosePopup = () => {
     setSelectedWaypoint(null);
     setShowEventForm(false);
@@ -369,8 +233,8 @@ const DesktopView: React.FC = () => {
         onSearchInputChange={handleSearchChange}
         filteredSuggestions={filteredSuggestions}
         onSuggestionSelect={handleSuggestionSelect}
-        onFilterChange={handleFilterChange} // Pass filter change handler
-        currentFilters={currentFilters} // Pass current filters state
+        onFilterChange={handleFilterChange}
+        currentFilters={currentFilters}
       />
     </div>
   );

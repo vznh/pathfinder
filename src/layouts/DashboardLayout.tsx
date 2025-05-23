@@ -25,18 +25,19 @@ interface DashboardLayoutProps {
   onSearchInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   filteredSuggestions: { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[];
   onSuggestionSelect: (s: {name: string; coordinates: [number, number]; source: "local" | "mapbox" }) => void;
-  // Add new props for filter state and handler
   onFilterChange: (filters: {
     startDate: string;
     endDate: string;
     startTime: string;
     endTime: string;
+    useTimeFilter: boolean;
   }) => void;
   currentFilters: {
     startDate: string;
     endDate: string;
     startTime: string;
     endTime: string;
+    useTimeFilter: boolean;
   };
 }
 
@@ -47,7 +48,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSearchInputChange,
   filteredSuggestions,
   onSuggestionSelect,
-  // Destructure new props
   onFilterChange,
   currentFilters
 }) => {
