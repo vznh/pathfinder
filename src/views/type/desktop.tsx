@@ -59,6 +59,22 @@ const DesktopView: React.FC = () => {
     { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[]
   >([]);
 
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error) {
+        console.error("Error fetching user:", error);
+      } else {
+        setUser(user);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   // handler for typing in the search box
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -134,10 +150,10 @@ const DesktopView: React.FC = () => {
             isClub: row.type === "club"
           }
         };
-        mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData);
+        mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
       }
     }
-  }, [events]);
+  }, [events, user]);
 
   useEffect(() => {
     if (waypointMode) {

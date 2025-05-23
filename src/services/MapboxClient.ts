@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import { EventData, EventRsvp } from "@/components/specific/RSVP";
 import { createRoot } from "react-dom/client";
 import React from "react";
+import { PiSquareIcon } from "lucide-react";
 
 export interface mapboxClientResponse {
   data?: Array<any>;
@@ -25,7 +26,7 @@ interface NavigationService {}
 
 interface EventService {
   addBaseMarker(coords: [number, number]): void;
-  addEventMarker(coords: [number, number], eventData: EventData): void;
+  addEventMarker(coords: [number, number], eventData: EventData, user: any): void;
   removeAnyMarkers(): void;
 }
 
@@ -122,23 +123,33 @@ class EventServiceImpl implements EventService {
     this.client = client;
   }
 
-  createDynamicMarker(event_user_email: string | null, isSelected: boolean = false): HTMLElement {
+  createDynamicMarker(event_user_email: string | null, user: any, isSelected: boolean = false): HTMLElement {
     const el = document.createElement("div");
     el.className = "custom-marker";
 
-    // Size adjustments
+    // Size adjustments for selected markers
     el.style.width = isSelected ? "32px" : "24px";
     el.style.height = isSelected ? "32px" : "24px";
 
-    // Dynamic icon or color logic
-    el.style.backgroundImage = 'url("/pins.svg")';
-    if (event_user_email) {
-      el.style.backgroundColor = "#ff6b6b"; // orange
+    let markerColor: string;
+
+    // Check if the event belongs to the current logged-in user and its type (personal vs org)
+    if (event_user_email === user?.email) {
+      // Case 1: Current logged-in user's personal event
+      markerColor = "#4dabf7"; // Blue for personal events
+    } else if (!event_user_email){
+      // Case 2: Other people's personal event
+      markerColor = "#9b59b6"; // Purple for other people's personal events
+      // Case 3: Other people's event on behalf of an organization
     } else {
-      el.style.backgroundColor = "#4dabf7"; // blue
+      markerColor = "#f39c12"; // Orange for other people's organizational events
     }
 
+    // Apply the calculated color
+    el.style.backgroundColor = markerColor;
+
     // Style formatting
+    el.style.backgroundImage = "url(/pins.svg)";
     el.style.backgroundSize = "contain";
     el.style.backgroundRepeat = "no-repeat";
     el.style.backgroundPosition = "center";
@@ -167,13 +178,13 @@ class EventServiceImpl implements EventService {
       .addTo(this.client.getMap());
   }
 
-  addEventMarker(coordinates: [number, number], eventData: EventData): void {
+  addEventMarker(coordinates: [number, number], eventData: EventData, user: any): void {
     if (!this.client.getMap())
       throw new Error(
         "Map instance isn't initialized. Caught from func addEventMarker"
       );
     
-    const markerEl = this.createDynamicMarker(eventData.user_email);
+    const markerEl = this.createDynamicMarker(eventData.user_email, user);
     
     // Create hover popup
     const hoverPopup = new mapboxgl.Popup({
