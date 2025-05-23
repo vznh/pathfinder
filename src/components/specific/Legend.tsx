@@ -2,8 +2,8 @@ import React from "react";
 
 const legendItems = [
   { color: "#4dabf7", label: "Your personal events" },
-  { color: "#9b59b6", label: "Other personal events" },
-  { color: "#f39c12", label: "Organization events" },
+  { color: "#f39c12", label: "Other personal events" },
+  { color: "#9b59b6", label: "Organization events" },
 ];
 
 const Legend: React.FC = () => {

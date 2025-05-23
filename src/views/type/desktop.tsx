@@ -63,17 +63,17 @@ const DesktopView: React.FC = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
+      const { data: { session }, error } = await supabase.auth.getSession();
+
       if (error) {
         console.error("Error fetching user:", error);
       } else {
-        setUser(user);
+        setUser(session?.user);
       }
     };
 
     fetchUser();
-  }, []);
+  }, [supabase]);
 
   // handler for typing in the search box
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,7 +192,8 @@ const DesktopView: React.FC = () => {
 
     if (selectedWaypoint) {
       const [lng, lat] = selectedWaypoint;
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const { data: { session }, error: userError } = await supabase.auth.getSession();
+      const user = session?.user;
 
       if (userError || !user) {
         console.error("User not found or error:", userError);
