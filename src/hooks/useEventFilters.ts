@@ -104,6 +104,8 @@ export const useEventFilters = (events: any[]) => {
             startTime: eventStartTime || "00:00",
             endTime: eventEndTime || "23:59",
             rsvp_count: row.rsvp_count,
+            organization_name: row.organization_name,
+            user_email: row.user_email,
             creator: {
               name: row.user_email || row.organization_name || 'ERROR',
               isClub: row.type === "club"
