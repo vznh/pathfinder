@@ -1,7 +1,7 @@
 "use client"
-
 import { useState } from "react"
-import { Loader2, X, Calendar, Clock, Mail, User } from "lucide-react"
+import { Loader2, X, Calendar, Clock, Mail, User, MapPin } from "lucide-react"
+import { AddToCalendarButton } from 'add-to-calendar-button-react';
 import { createClient } from "@/supabase/component";
 
 // Define the event data structure
@@ -16,6 +16,8 @@ export interface EventData {
   rsvp_count: number | null
   organization_name: string | null
   user_email: string | null
+  longitude: number | null
+  latitude: number | null
   creator: {
     name: string
     isClub: boolean
@@ -27,23 +29,19 @@ interface EventRsvpProps {
   onClose?: () => void
 }
 
-
-
 export function EventRsvp({ event, onClose }: EventRsvpProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  
+
   const handleAttend = async () => {
     setIsSubmitting(true)
     try {
       // Simulate API call
       const supabase = createClient();
       const { data: { user }, error: userError } = await supabase.auth.getUser()
-
       if (userError || !user) {
         console.error('User not found or error:', userError)
       }
-
       else {
         const { error: insertError } = await supabase
           .from('users_attending_events_v0')
@@ -51,7 +49,6 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
             user_id: user.id,
             event_id: event.id
           })
-
         if (insertError) {
           console.error('Insert error:', insertError)
         } else {
@@ -85,6 +82,36 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
     return `${hour12}:${minutes} ${ampm}`
   }
 
+  // Prepare date and time for calendar
+  const formatCalendarDate = (dateString: string) => {
+    if (!dateString) return ""
+    const date = new Date(dateString)
+    return date.toISOString().split('T')[0] // Format as YYYY-MM-DD
+  }
+
+  // Format time for calendar (HH:MM)
+  const formatCalendarTime = (timeString: string) => {
+    if (!timeString) return ""
+    return timeString // Calendar expects HH:MM format
+  }
+
+  // Format location with coordinates for calendar
+  const formatLocationForCalendar = () => {
+    if (event.latitude && event.longitude) {
+      // Format as coordinates that Google Calendar can understand
+      return `${event.latitude},${event.longitude}`
+    }
+    return ""
+  }
+
+  // Display location coordinates in a user-friendly way
+  const formatLocationDisplay = () => {
+    if (event.latitude && event.longitude) {
+      return `${event.latitude.toFixed(6)}, ${event.longitude.toFixed(6)}`
+    }
+    return ""
+  }
+
   if (submitted) {
     return (
       <div className="rounded-lg border border-gray-700 bg-gray-800 text-white shadow-lg w-full max-w-xs p-4 text-center animate-in fade-in">
@@ -104,7 +131,7 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
           </button>
         )}
       </div>
-
+      
       {/* Creator information */}
       <div className="p-3 border-b border-gray-700 space-y-2">
         <div className="flex items-center text-xs text-gray-300">
@@ -115,50 +142,74 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
           </span>
         </div>
       </div>
-
+      
       <div className="p-3 space-y-3 border-b border-gray-700">
         <div className="flex items-start">
           <span className="inline-block px-2 py-1 text-xs rounded bg-gray-700 text-blue-400">{event.type}</span>
         </div>
-
         {event.description && <p className="text-xs text-gray-300">{event.description}</p>}
-
         <div className="flex items-center text-xs text-gray-300">
           <Calendar className="h-3 w-3 mr-1" />
           <span>{formatDate(event.date)}</span>
         </div>
-
         <div className="flex items-center text-xs text-gray-300">
           <Clock className="h-3 w-3 mr-1" />
           <span>
             {formatTime(event.startTime)} - {formatTime(event.endTime)}
           </span>
         </div>
+        {/* Location display */}
+        {formatLocationDisplay() && (
+          <div className="flex items-center text-xs text-gray-300">
+            <MapPin className="h-3 w-3 mr-1" />
+            <span>{formatLocationDisplay()}</span>
+          </div>
+        )}
       </div>
-
-      <div className="p-3 flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-xs px-3 py-1.5 bg-gray-700 text-white rounded-md hover:bg-gray-600"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={handleAttend}
-          disabled={isSubmitting}
-          className="text-xs px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            "I'll attend"
-          )}
-        </button>
+      
+      <div className="p-3 flex flex-col gap-3">
+        {/* Add to Calendar Button */}
+        <div className="flex justify-center">
+          <AddToCalendarButton
+            name={event.name}
+            description={event.description || ""}
+            startDate={formatCalendarDate(event.date)}
+            endDate={formatCalendarDate(event.date)}
+            startTime={formatCalendarTime(event.startTime)}
+            endTime={formatCalendarTime(event.endTime)}
+            location={formatLocationForCalendar()}
+            timeZone="America/Los_Angeles"
+            options={['Google']}
+            buttonStyle="round"
+            size="2"
+            lightMode="dark"
+          />
+        </div>
+        
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-xs px-3 py-1.5 bg-gray-700 text-white rounded-md hover:bg-gray-600"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleAttend}
+            disabled={isSubmitting}
+            className="text-xs px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "I'll attend"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )

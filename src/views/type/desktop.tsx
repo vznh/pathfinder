@@ -145,6 +145,8 @@ const DesktopView: React.FC = () => {
           rsvp_count: row.rsvp_count,
           user_email: row.user_email,
           organization_name: row.organization_name,
+          longitude: row.longitude,
+          latitude: row.latitude,
           creator: {
             name: row.user_email || row.organization_name || 'ERROR',
             isClub: row.type === "club"
