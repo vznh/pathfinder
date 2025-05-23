@@ -16,6 +16,7 @@ import {
   Link2Icon,
   LinkBreak2Icon
 } from "@radix-ui/react-icons";
+import Legend from "@/components/specific/Legend";
 
 interface DashboardLayoutProps {
   development?: boolean;
@@ -220,12 +221,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-end justify-center p-4 ${borderClasses}`}
       >
         {/* Bottom center */}
+        <EmailModalButton />
       </div>
       <div
         className={`pointer-events-none flex items-end justify-end p-4 ${borderClasses}`}
       >
         {/* Bottom right */}
-        <EmailModalButton></EmailModalButton>
+        <Legend />
       </div>
 
       {/* SignInOverlay component */}

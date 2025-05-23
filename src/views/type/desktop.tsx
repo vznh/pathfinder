@@ -59,6 +59,22 @@ const DesktopView: React.FC = () => {
     { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[]
   >([]);
 
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Error fetching user:", error);
+      } else {
+        setUser(session?.user);
+      }
+    };
+
+    fetchUser();
+  }, [supabase]);
+
   // handler for typing in the search box
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -134,10 +150,10 @@ const DesktopView: React.FC = () => {
             isClub: row.type === "club"
           }
         };
-        mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData);
+        mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
       }
     }
-  }, [events]);
+  }, [events, user]);
 
   useEffect(() => {
     if (waypointMode) {
@@ -176,7 +192,8 @@ const DesktopView: React.FC = () => {
 
     if (selectedWaypoint) {
       const [lng, lat] = selectedWaypoint;
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const { data: { session }, error: userError } = await supabase.auth.getSession();
+      const user = session?.user;
 
       if (userError || !user) {
         console.error("User not found or error:", userError);
