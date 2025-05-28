@@ -11,6 +11,7 @@ import OrganizationEventForm from "@/components/specific/OrganizationEventForm";
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
 import { useEventsStore } from "@/stores/useEventsStore";
 import { useOrgsStore } from "@/stores/useOrgsStore";
+import OrgSearchPanel from "@/components/specific/OrgSearchPanel";
 
 const geocodingClient = mbxGeocoding({
   accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!,
@@ -51,6 +52,8 @@ const DesktopView: React.FC = () => {
   const [showEventForm, setShowEventForm] = useState(false);
   const [formType, setFormType] = useState<'personal' | 'org'>('personal');
   const orgs = useOrgsStore(state => state.orgs);
+  const [orgSearchOpen, setOrgSearchOpen] = useState(false);
+  const handleOrgSearchToggle = () => setOrgSearchOpen(prev => !prev);
 
   const supabase = createClient();
   // search bar state
@@ -276,6 +279,11 @@ const DesktopView: React.FC = () => {
         )
       )}
 
+      <OrgSearchPanel
+        isOpen={orgSearchOpen}
+        onClose={handleOrgSearchToggle}
+      />
+
       <DashboardLayout
         development={false}
         onWaypointModeToggle={handleWaypointModeToggle}
@@ -283,6 +291,7 @@ const DesktopView: React.FC = () => {
         onSearchInputChange={handleSearchChange}
         filteredSuggestions={filteredSuggestions}
         onSuggestionSelect={handleSuggestionSelect}
+        onOrgSearchToggle={handleOrgSearchToggle}
         {...(showEventForm && {
           formType,
           onFormTypeToggle: () =>

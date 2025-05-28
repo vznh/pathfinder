@@ -14,7 +14,8 @@ import {
   ClockIcon,
   MagnifyingGlassIcon,
   Link2Icon,
-  LinkBreak2Icon
+  LinkBreak2Icon,
+  LayersIcon
 } from "@radix-ui/react-icons";
 import Legend from "@/components/specific/Legend";
 
@@ -27,6 +28,7 @@ interface DashboardLayoutProps {
   onSuggestionSelect: (s: {name: string; coordinates: [number, number]; source: "local" | "mapbox" }) => void;
   formType?: 'personal' | 'org';               //  NEW
   onFormTypeToggle?: () => void;               //  NEW
+  onOrgSearchToggle?: () => void;              // NEW
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -38,6 +40,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSuggestionSelect,
   formType,
   onFormTypeToggle,
+  onOrgSearchToggle
 }) => {
   const supabase = createClient(); // Initialize Supabase client
   const [isAuthenticated, setIsAuthenticated] = useState(false); // State for authentication status
@@ -182,6 +185,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-start justify-end p-4 ${borderClasses}`}
       >
         {/* Top right */}
+        {onOrgSearchToggle && (
+          <button
+            onClick={onOrgSearchToggle}
+            className="pointer-events-auto bg-white hover:bg-gray-100 text-gray-800 rounded-lg p-2 transition mr-2"
+            aria-label="Search Organizations"
+          >
+            <LayersIcon className="w-7 h-7" />
+          </button>
+        )}
         {onFormTypeToggle && formType && (
           <button
             onClick={onFormTypeToggle}
