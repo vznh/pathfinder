@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { Loader2, X, Calendar, Clock, User, MapPin } from "lucide-react"
+import { Loader2, X, Calendar, Clock, User, MapPin, Share2 } from "lucide-react"
 import { AddToCalendarButton } from 'add-to-calendar-button-react'
 import { createClient } from "@/supabase/component"
 import EditEventForm from "../specific/EditEventForm"
@@ -216,6 +216,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
       </div>
 
       <div className="p-3 flex flex-col gap-3">
+        {/* Add to Calendar Button */}
         <div className="flex justify-center">
           <AddToCalendarButton
             name={event.name}
@@ -231,6 +232,21 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
             size="2"
             lightMode="dark"
           />
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: event.name,
+                  text: `${event.description || ''}\nDate: ${formatDate(event.date)}\nTime: ${formatTime(event.startTime)} - ${formatTime(event.endTime)}`,
+                  url: window.location.href
+                }).catch(err => console.log('Error sharing:', err));
+              }
+            }}
+            className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
+            title="Share event"
+          >
+            <Share2 className="h-5 w-5" />
+          </button>
         </div>
 
         <div className="flex flex-wrap justify-between gap-2">
