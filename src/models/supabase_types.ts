@@ -23,6 +23,7 @@ export type Database = {
           start_time: string | null
           type: string | null
           user_id: string | null
+          image_url: string | null
         }
         Insert: {
           created_at?: string
@@ -37,6 +38,7 @@ export type Database = {
           start_time?: string | null
           type?: string | null
           user_id?: string | null
+          image_url?: string | null
         }
         Update: {
           created_at?: string
@@ -51,6 +53,7 @@ export type Database = {
           start_time?: string | null
           type?: string | null
           user_id?: string | null
+          image_url?: string | null
         }
         Relationships: [
           {
@@ -206,6 +209,7 @@ export type Database = {
           start_time: string | null
           type: string | null
           user_email: string | null
+          image_url: string | null
         }
         Relationships: []
       }

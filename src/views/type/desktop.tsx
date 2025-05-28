@@ -131,6 +131,7 @@ const DesktopView: React.FC = () => {
           rsvp_count: row.rsvp_count,
           user_email: row.user_email,
           organization_name: row.organization_name,
+          image_url: row.image_url,
           creator: {
             name: row.user_email || row.organization_name || 'ERROR',
             isClub: row.type === "club"
@@ -192,6 +193,7 @@ const DesktopView: React.FC = () => {
           date: formData.date,
           start_time: formData.startTime,
           end_time: formData.endTime,
+          image_url: formData.image_url,
         };
 
         const org = orgs.find(o => o.name === formData.tags);

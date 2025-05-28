@@ -10,6 +10,7 @@ export interface PersonalEventFormProps {
     date: string;
     startTime: string;
     endTime: string;
+    image_url: string | null;
   }) => void;
   onCancel: () => void;
 }
@@ -26,6 +27,7 @@ const PersonalEventForm: React.FC<PersonalEventFormProps> = ({
     date: "",
     startTime: "",
     endTime: "",
+    image_url: null as string | null,
   });
 
   const handleChange = (

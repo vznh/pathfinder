@@ -16,6 +16,7 @@ export interface EventData {
   rsvp_count: number | null
   organization_name: string | null
   user_email: string | null
+  image_url: string | null
   creator: {
     name: string
     isClub: boolean
@@ -115,6 +116,16 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
           </span>
         </div>
       </div>
+
+      {event.image_url && (
+        <div className="p-3 border-b border-gray-700">
+          <img 
+            src={event.image_url} 
+            alt={event.name}
+            className="w-full h-48 object-cover rounded-lg"
+          />
+        </div>
+      )}
 
       <div className="p-3 space-y-3 border-b border-gray-700">
         <div className="flex items-start">
