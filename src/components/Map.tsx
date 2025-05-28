@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import mapboxClient from "@/services/MapboxClient";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+import { changeMapEnvOnTime } from "@/utils";
 
 const Map: React.FC = () => {
   const mapContainer = useRef(null);
@@ -16,6 +17,11 @@ const Map: React.FC = () => {
           [-122.10174, 36.96634],
           [-122.01639, 37.0263],
         ],
+        config: {
+          basemap: {
+            lightPreset: changeMapEnvOnTime()
+          }
+        },
       });
     }
     return () => {
