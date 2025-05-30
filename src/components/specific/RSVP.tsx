@@ -1,10 +1,9 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Loader2, X, Calendar, Clock, Mail, User, MapPin } from "lucide-react"
-import { AddToCalendarButton } from 'add-to-calendar-button-react';
-import { createClient } from "@/supabase/component";
+import { AddToCalendarButton } from 'add-to-calendar-button-react'
+import { createClient } from "@/supabase/component"
 
-// Define the event data structure
 export interface EventData {
   id: string
   name: string
@@ -32,17 +31,30 @@ interface EventRsvpProps {
 export function EventRsvp({ event, onClose }: EventRsvpProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
+
+  const isCreator = currentUserEmail === event.user_email
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const supabase = createClient()
+      const { data: { session }, error } = await supabase.auth.getSession()
+      if (session && !error) {
+        setCurrentUserEmail(session?.user?.email ?? null)
+      }
+    }
+    fetchSession()
+  }, [])
 
   const handleAttend = async () => {
     setIsSubmitting(true)
     try {
-      // Simulate API call
-      const supabase = createClient();
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      if (userError || !user) {
-        console.error('User not found or error:', userError)
-      }
-      else {
+      const supabase = createClient()
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError || !session) {
+        console.error('Session not found or error:', sessionError)
+      } else {
+        const user = session.user
         const { error: insertError } = await supabase
           .from('users_attending_events_v0')
           .insert({
@@ -55,7 +67,6 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
           console.log('Row inserted successfully')
         }
       }
-      console.log("Attending event:", { eventId: event.id, attending: true })
       setSubmitted(true)
       setTimeout(() => onClose?.(), 1500)
     } catch (error) {
@@ -65,14 +76,43 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
     }
   }
 
-  // Format date for display
+  const handleDelete = async () => {
+    const confirmDelete = confirm("Are you sure you want to delete this event?")
+    if (!confirmDelete) return
+
+    setIsSubmitting(true)
+    try {
+      const supabase = createClient()
+      const { error: deleteError } = await supabase
+        .from("events_v0") // Replace with your actual table
+        .delete()
+        .eq("id", event.id)
+
+      if (deleteError) {
+        console.error("Delete error:", deleteError)
+      } else {
+        console.log("Event deleted successfully")
+        setSubmitted(true)
+        setTimeout(() => onClose?.(), 1500)
+      }
+    } catch (error) {
+      console.error("Unexpected error deleting event:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const formatDate = (dateString: string) => {
     if (!dateString) return ""
     const date = new Date(dateString)
-    return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    })
   }
 
-  // Format time for display
   const formatTime = (timeString: string) => {
     if (!timeString) return ""
     const [hours, minutes] = timeString.split(":")
@@ -82,29 +122,24 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
     return `${hour12}:${minutes} ${ampm}`
   }
 
-  // Prepare date and time for calendar
   const formatCalendarDate = (dateString: string) => {
     if (!dateString) return ""
     const date = new Date(dateString)
-    return date.toISOString().split('T')[0] // Format as YYYY-MM-DD
+    return date.toISOString().split('T')[0]
   }
 
-  // Format time for calendar (HH:MM)
   const formatCalendarTime = (timeString: string) => {
     if (!timeString) return ""
-    return timeString // Calendar expects HH:MM format
+    return timeString
   }
 
-  // Format location with coordinates for calendar
   const formatLocationForCalendar = () => {
     if (event.latitude && event.longitude) {
-      // Format as coordinates that Google Calendar can understand
       return `${event.latitude},${event.longitude}`
     }
     return ""
   }
 
-  // Display location coordinates in a user-friendly way
   const formatLocationDisplay = () => {
     if (event.latitude && event.longitude) {
       return `${event.latitude.toFixed(6)}, ${event.longitude.toFixed(6)}`
@@ -131,8 +166,7 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
           </button>
         )}
       </div>
-      
-      {/* Creator information */}
+
       <div className="p-3 border-b border-gray-700 space-y-2">
         <div className="flex items-center text-xs text-gray-300">
           <User className="h-3 w-3 mr-1" />
@@ -142,7 +176,7 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
           </span>
         </div>
       </div>
-      
+
       <div className="p-3 space-y-3 border-b border-gray-700">
         <div className="flex items-start">
           <span className="inline-block px-2 py-1 text-xs rounded bg-gray-700 text-blue-400">{event.type}</span>
@@ -158,7 +192,6 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
             {formatTime(event.startTime)} - {formatTime(event.endTime)}
           </span>
         </div>
-        {/* Location display */}
         {formatLocationDisplay() && (
           <div className="flex items-center text-xs text-gray-300">
             <MapPin className="h-3 w-3 mr-1" />
@@ -166,9 +199,8 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
           </div>
         )}
       </div>
-      
+
       <div className="p-3 flex flex-col gap-3">
-        {/* Add to Calendar Button */}
         <div className="flex justify-center">
           <AddToCalendarButton
             name={event.name}
@@ -185,30 +217,51 @@ export function EventRsvp({ event, onClose }: EventRsvpProps) {
             lightMode="dark"
           />
         </div>
-        
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-xs px-3 py-1.5 bg-gray-700 text-white rounded-md hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleAttend}
-            disabled={isSubmitting}
-            className="text-xs px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "I'll attend"
-            )}
-          </button>
+
+        <div className="flex flex-wrap justify-between gap-2">
+          {isCreator && (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => alert("Edit clicked")}
+                className="text-xs px-3 py-1.5 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isSubmitting}
+                className="text-xs px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:opacity-50"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-xs px-3 py-1.5 bg-gray-700 text-white rounded-md hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleAttend}
+              disabled={isSubmitting}
+              className="text-xs px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "I'll attend"
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
