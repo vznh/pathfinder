@@ -21,6 +21,7 @@ export interface EventData {
   creator: {
     name: string
     isClub: boolean
+    isUserOrg: boolean
   }
 }
 

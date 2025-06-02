@@ -123,7 +123,7 @@ class EventServiceImpl implements EventService {
     this.client = client;
   }
 
-  createDynamicMarker(event_user_email: string | null, user: any, isSelected: boolean = false): HTMLElement {
+  createDynamicMarker(event_user_email: string | null, isUserOrg: boolean | null, user: any, isSelected: boolean = false): HTMLElement {
     const el = document.createElement("div");
     el.className = "custom-marker";
 
@@ -136,13 +136,15 @@ class EventServiceImpl implements EventService {
     // Check if the event belongs to the current logged-in user and its type (personal vs org)
     if (event_user_email === user?.email) {
       // Case 1: Current logged-in user's personal event
-      markerColor = "#4dabf7"; // Blue for personal events
+      markerColor = "#4dabf7"; // Blue
+    } else if (isUserOrg) {
+      markerColor = "#2ecc71"; // Green
     } else if (!event_user_email){
-      // Case 2: Other people's personal event
-      markerColor = "#9b59b6"; // Purple for other people's personal events
-      // Case 3: Other people's event on behalf of an organization
+      // Case 2: Organization event
+      markerColor = "#9b59b6"; // Purple 
+      // Case 3: Other people's personal event
     } else {
-      markerColor = "#f39c12"; // Orange for other people's organizational events
+      markerColor = "#f39c12"; // Orange
     }
 
     // Apply the calculated color
@@ -184,7 +186,7 @@ class EventServiceImpl implements EventService {
         "Map instance isn't initialized. Caught from func addEventMarker"
       );
     
-    const markerEl = this.createDynamicMarker(eventData.user_email, user);
+    const markerEl = this.createDynamicMarker(eventData.user_email, eventData.creator.isUserOrg, user);
     
     // Create hover popup
     const hoverPopup = new mapboxgl.Popup({
