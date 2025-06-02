@@ -1,7 +1,7 @@
 import Map from "@/components/Map";
 import mapboxClient from "@/services/MapboxClient";
 import { EventData } from "@/components/specific/RSVP";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/supabase/component";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import WaypointPopup from "@/components/specific/WaypointPopup";
@@ -11,6 +11,7 @@ import OrganizationEventForm from "@/components/specific/OrganizationEventForm";
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
 import { useEventsStore } from "@/stores/useEventsStore";
 import { useOrgsStore } from "@/stores/useOrgsStore";
+import { changeMapEnvOnTime } from "@/utils";
 
 const geocodingClient = mbxGeocoding({
   accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!,
@@ -60,6 +61,8 @@ const DesktopView: React.FC = () => {
   >([]);
 
   const [user, setUser] = useState<any>(null);
+  const intervalIdRef = useRef<NodeJS.Timeout | null>(null); // Ref to store interval ID
+  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -178,6 +181,41 @@ const DesktopView: React.FC = () => {
     }
   }, [waypointMode]);
 
+  useEffect(() => {
+    const executeMapLogic = () => {
+      const map = mapboxClient.getMap();
+      const preset = changeMapEnvOnTime();
+      if (map) {
+        (map as any).setConfigProperty('basemap', 'lightPreset', preset);
+      }
+      console.log(`changed to ${preset}`);
+    };
+
+    console.log("mounted");
+
+    let intervalId: NodeJS.Timeout | undefined;
+
+    const initialTimeoutId = setTimeout(() => {
+      executeMapLogic();
+
+      // Repeats logic every 5 minutes
+      intervalId = setInterval(() => {
+        executeMapLogic();
+      }, 1000 * 60 * 5); // 5
+
+    }, 1000 * 2); // 1
+
+    // Cleanup function to clear the timeout and interval when the component unmounts
+    return () => {
+      clearTimeout(initialTimeoutId);
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, []);
+
+
+
   const handleWaypointModeToggle = () => {
     setWaypointMode(!waypointMode);
     if (selectedWaypoint) {
@@ -211,8 +249,8 @@ const DesktopView: React.FC = () => {
           end_time: formData.endTime,
         };
 
-        const org = orgs.find(o => o.name === formData.tags);   
-        let selectedOrgId: string | undefined;     
+        const org = orgs.find(o => o.name === formData.tags);
+        let selectedOrgId: string | undefined;
         if (org){
           selectedOrgId = org.id;
         } else {
@@ -227,7 +265,7 @@ const DesktopView: React.FC = () => {
         }
 
         const { error: insertError } = await supabase.from("events_v0").insert(insertData);
-        
+
         if (insertError) {
           console.error("Insert error:", insertError);
         } else {
