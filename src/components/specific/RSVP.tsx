@@ -167,6 +167,8 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
         }}
         onSubmit={handleEditSubmit}
         onCancel={() => setIsEditing(false)}
+        readonlyTags={event.creator.isUserOrg}
+        tagsLabel={event.creator.isUserOrg ? "Organization" : "Tags"}
       />
     )
   }
@@ -229,7 +231,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
         </div>
 
         <div className="flex flex-wrap justify-between gap-2">
-          {isCreator ? (
+          {isCreator || event.creator.isUserOrg ? (
             <>
               <div className="flex gap-2">
                 <button
