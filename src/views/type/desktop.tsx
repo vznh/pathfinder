@@ -51,11 +51,33 @@ const DesktopView: React.FC = () => {
   const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
   const [formType, setFormType] = useState<'personal' | 'org'>('personal');
-  const orgs = useOrgsStore(state => state.orgs);
   const [orgSearchOpen, setOrgSearchOpen] = useState(false);
   const handleOrgSearchToggle = () => setOrgSearchOpen(prev => !prev);
 
   const supabase = createClient();
+  interface Org {
+    org_id: string;
+    org_name: string;
+    userIsPartOf: boolean;
+    userIsSubscribed: boolean;
+  }
+
+  const MOCK_ORGS: Org[] = Array.from({ length: 10 }, (_, i) => ({
+    org_id: `${i + 1}`,
+    org_name: `Test Org ${i + 1}`,
+    userIsPartOf: false,
+    userIsSubscribed: false,
+  }));
+  const [orgs, setOrgs] = useState<Org[]>(MOCK_ORGS);
+  const handleToggleSubscribe = (id: string, next: boolean) => {
+    // optimistic update
+    setOrgs(prev =>
+      prev.map(o => (o.org_id === id ? { ...o, userIsSubscribed: next } : o))
+    );
+
+    // TODO: swap this console.log for your Supabase RPC / mutation
+    console.log(`${next ? "Subscribed to" : "Unsubscribed from"} org ${id}`);
+  };
   // search bar state
   const [searchInput, setSearchInput] = useState<string>("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<
@@ -214,10 +236,10 @@ const DesktopView: React.FC = () => {
           end_time: formData.endTime,
         };
 
-        const org = orgs.find(o => o.name === formData.tags);   
+        const org = orgs.find(o => o.org_name === formData.tags);   
         let selectedOrgId: string | undefined;     
         if (org){
-          selectedOrgId = org.id;
+          selectedOrgId = org.org_id;
         } else {
           console.error("Organization not in database");
         }
@@ -282,6 +304,8 @@ const DesktopView: React.FC = () => {
       <OrgSearchPanel
         isOpen={orgSearchOpen}
         onClose={handleOrgSearchToggle}
+        orgs={orgs}
+        onToggleSubscribe={handleToggleSubscribe}
       />
 
       <DashboardLayout
