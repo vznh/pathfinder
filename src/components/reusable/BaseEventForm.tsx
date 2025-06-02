@@ -26,7 +26,7 @@ const BaseEventForm: React.FC<BaseEventFormProps> = ({
   onCancel,
   tagsInput,
 }) => {
-  console.log("TITLE:", title);
+
   return (
     <div className="absolute left-[calc(50%+20px)] top-1/2 -translate-y-1/2">
       <div className="relative bg-gray-800 text-white rounded-2xl shadow-2xl p-6 w-96">
