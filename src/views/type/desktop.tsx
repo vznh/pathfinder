@@ -75,7 +75,7 @@ const DesktopView: React.FC = () => {
       prev.map(o => (o.org_id === id ? { ...o, userIsSubscribed: next } : o))
     );
 
-    // TODO: swap this console.log for your Supabase RPC / mutation
+    // swap this console.log with supabase call to update subscription status
     console.log(`${next ? "Subscribed to" : "Unsubscribed from"} org ${id}`);
   };
   // search bar state
