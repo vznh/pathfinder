@@ -229,50 +229,62 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
         </div>
 
         <div className="flex flex-wrap justify-between gap-2">
-          {isCreator && (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="text-xs px-3 py-1.5 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={isSubmitting}
-                className="text-xs px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:opacity-50"
-              >
-                Delete
-              </button>
-            </div>
+          {isCreator ? (
+            <>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="text-xs px-3 py-1.5 bg-gray-700 text-white rounded-md hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="text-xs px-3 py-1.5 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isSubmitting}
+                  className="text-xs px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:opacity-50"
+                >
+                  Delete
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="text-xs px-3 py-1.5 bg-gray-700 text-white rounded-md hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAttend}
+                  disabled={isSubmitting}
+                  className="text-xs px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "I'll attend"
+                  )}
+                </button>
+              </div>
+            </>
           )}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-xs px-3 py-1.5 bg-gray-700 text-white rounded-md hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleAttend}
-              disabled={isSubmitting}
-              className="text-xs px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "I'll attend"
-              )}
-            </button>
-          </div>
-        </div>
+        </div>        
       </div>
     </div>
   )
