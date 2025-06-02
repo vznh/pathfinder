@@ -134,6 +134,7 @@ const DesktopView: React.FC = () => {
         typeof row.longitude === "number" &&
         typeof row.latitude === "number"
       ) {
+        const isUserOrgEvent = orgs.some(org => org.name === row.organization_name);
         const eventData: EventData = {
           id: row.id || "ERROR",
           name: row.event || "",
@@ -149,7 +150,8 @@ const DesktopView: React.FC = () => {
           latitude: row.latitude,
           creator: {
             name: row.user_email || row.organization_name || 'ERROR',
-            isClub: row.type === "club"
+            isClub: row.type === "club",
+            isUserOrg: isUserOrgEvent
           }
         };
         mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
