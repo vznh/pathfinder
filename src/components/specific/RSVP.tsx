@@ -80,6 +80,8 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
     setIsSubmitting(true)
     try {
       const supabase = createClient()
+      console.log("EVENTID:",  event.id)
+      console.log("Event_id", typeof(event.id))
       const { error } = await supabase
         .from("events_v0")
         .delete()
@@ -104,6 +106,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
     endTime: string;
   }) => {
     setIsSubmitting(true)
+    console.log("description:", updatedData.description)
     try {
       const supabase = createClient()
       const { error } = await supabase
@@ -145,7 +148,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
 
   const formatCalendarDate = (date: string) => new Date(date).toISOString().split("T")[0]
 
-  if (submitted) {
+  if (submitted && !(isCreator || event.creator.isUserOrg)) {
     return (
       <div className="rounded-lg border border-gray-700 bg-gray-800 text-white shadow-lg w-full max-w-xs p-4 text-center animate-in fade-in">
         <div className="text-green-400 mb-2 text-xl">✓</div>
