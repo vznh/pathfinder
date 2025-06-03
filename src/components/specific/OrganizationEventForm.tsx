@@ -36,7 +36,7 @@ const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
   const orgs = useOrgsStore((state) => state.orgs);
 
   useEffect(() => {
-    const options = orgs.map(({name}) => name)
+    const options = orgs.flatMap((x) => (x.name!==null && x.user_is_part_of_org===true ?  x.name : []));
     setOptions(options);
   }, [orgs]);
 

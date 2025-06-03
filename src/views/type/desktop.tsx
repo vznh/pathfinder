@@ -51,7 +51,7 @@ const DesktopView: React.FC = () => {
   const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
   const [formType, setFormType] = useState<'personal' | 'org'>('personal');
-  const orgs = useOrgsStore(state => state.orgs);
+  const orgs = useOrgsStore(state => state.orgs).flatMap((x) => (x.name!==null && x.id!==null && x.user_is_part_of_org===true ?  {name: x.name, id: x.id} : []));
 
   const supabase = createClient();
   // search bar state

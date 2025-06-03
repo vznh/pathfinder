@@ -33,11 +33,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if (error_events) throw error_events;
 
   const { data: orgs, error: error_orgs } = await supabase
-    .from('user_organizations_v0')
-    .select(
-      '...organizations_v0(id,name)',
-    )
-    .eq('user_id', user?.id);
+    .from('organizations')
+    .select()
   if (error_orgs) throw error_orgs;
   console.log(orgs)
   return {
