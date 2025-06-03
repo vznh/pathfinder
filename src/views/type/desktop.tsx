@@ -160,7 +160,7 @@ const DesktopView: React.FC = () => {
         mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
       }
     }
-  }, [events, user]);
+  }, [events, user, orgs]);
 
   useEffect(() => {
     if (waypointMode) {
