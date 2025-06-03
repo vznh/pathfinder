@@ -63,21 +63,45 @@ const DesktopView: React.FC = () => {
     userIsSubscribed: boolean;
   }
 
-  const MOCK_ORGS: Org[] = Array.from({ length: 10 }, (_, i) => ({
-    org_id: `${i + 1}`,
-    org_name: `Test Org ${i + 1}`,
-    userIsPartOf: false,
-    userIsSubscribed: false,
-  }));
-  const [orgs, setOrgs] = useState<Org[]>(MOCK_ORGS);
-  const handleToggleSubscribe = (id: string, next: boolean) => {
-    // optimistic update
-    setOrgs(prev =>
-      prev.map(o => (o.org_id === id ? { ...o, userIsSubscribed: next } : o))
-    );
 
-    // swap this console.log with supabase call to update subscription status
-    console.log(`${next ? "Subscribed to" : "Unsubscribed from"} org ${id}`);
+  const orgs_array = useOrgsStore(state => state.orgs).flatMap((x) => 
+    (x.name!==null && x.id!==null && x.user_is_part_of_org!==null 
+      && x.user_is_subscribed_to_org!==null 
+      ?  {org_name: x.name, org_id: x.id, 
+        userIsPartOf: x.user_is_part_of_org, 
+        userIsSubscribed: x.user_is_subscribed_to_org} : []));
+  const [orgs, setOrgs] = useState<Org[]>(orgs_array);
+  const handleToggleSubscribe = async (id: string, next: boolean) => {
+    console.log(`Tried to ${next ? "subscribe to" : "unsubscribe from"} org ${id}`);
+    const { data: { session }, error: userError } = await supabase.auth.getSession();
+    if (next) {
+      const { error } = await supabase
+        .from('subscriptions_v0')
+        .insert({ organization_id: id, user_id: session?.user.id})
+      if (error) {
+        console.log(error)
+      }
+      else {
+        setOrgs(prev =>
+          prev.map(o => (o.org_id === id ? { ...o, userIsSubscribed: true } : o))
+        );
+      }
+    }
+    else {
+      const { error } = await supabase
+        .from('subscriptions_v0')
+        .delete()
+        .eq('user_id', session?.user.id)
+        .eq('organization_id', id)
+      if (error) {
+        console.log(error)
+      }
+      else {
+        setOrgs(prev =>
+          prev.map(o => (o.org_id === id ? { ...o, userIsSubscribed: false } : o))
+        );
+      }
+    }
   };
   // search bar state
   const [searchInput, setSearchInput] = useState<string>("");
@@ -162,7 +186,7 @@ const DesktopView: React.FC = () => {
         typeof row.longitude === "number" &&
         typeof row.latitude === "number"
       ) {
-        const isUserOrgEvent = orgs.some(org => org.name === row.organization_name);
+        const isUserOrgEvent = orgs.some(org => org.org_name === row.organization_name && org.userIsPartOf === true);
         const eventData: EventData = {
           id: row.id || "ERROR",
           name: row.event || "",
