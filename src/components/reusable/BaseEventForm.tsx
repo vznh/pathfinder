@@ -1,34 +1,42 @@
-import React from "react";
+import React from "react"
 
 export interface BaseEventFormProps {
+  title?: string
   formData: {
-    name: string;
-    tags: string;
-    description: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-  };
+    name: string
+    tags: string
+    description: string
+    date: string
+    startTime: string
+    endTime: string
+  }
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  onCancel: () => void;
-  tagsInput: React.ReactNode;
+  ) => void
+  onSubmit: (e: React.FormEvent) => void
+  onCancel: () => void
+  tagsInput: React.ReactNode
 }
 
 const BaseEventForm: React.FC<BaseEventFormProps> = ({
+  title = "Create Event", // default title
   formData,
   onChange,
   onSubmit,
   onCancel,
   tagsInput,
 }) => {
+
   return (
     <div className="absolute left-[calc(50%+20px)] top-1/2 -translate-y-1/2">
       <div className="relative bg-gray-800 text-white rounded-2xl shadow-2xl p-6 w-96">
-        <button onClick={onCancel} className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">×</button>
-        <div className="mb-2 text-2xl font-bold">Create Event</div>
+        <button
+          onClick={onCancel}
+          className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
+        >
+          ×
+        </button>
+        <div className="mb-2 text-2xl font-bold">{title}</div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-sm mb-1">Name</label>
@@ -103,13 +111,13 @@ const BaseEventForm: React.FC<BaseEventFormProps> = ({
               type="submit"
               className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
             >
-              Create
+              {title === "Edit Event" ? "Save" : "Create"}
             </button>
           </div>
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BaseEventForm;
+export default BaseEventForm
