@@ -47,4 +47,4 @@ interface GeoJSON {
 }
 
 export type EventRow = Database['authenticated']['Views']['events']['Row']
-export type OrgRow = Pick<Database['authenticated']['Tables']['organizations_v0']['Row'], 'id' | 'name'>
+export type OrgRow = Database['authenticated']['Views']['organizations']['Row']

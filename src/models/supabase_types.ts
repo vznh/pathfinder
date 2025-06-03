@@ -57,6 +57,13 @@ export type Database = {
             foreignKeyName: "events_v0_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_v0_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations_v0"
             referencedColumns: ["id"]
           },
@@ -111,6 +118,49 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions_v0: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_v0_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_v0_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_v0"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_v0_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_v0"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_organizations_v0: {
         Row: {
           created_at: string
@@ -131,6 +181,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_organizations_v0_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_organizations_v0_organization_id_fkey"
             columns: ["organization_id"]
@@ -206,6 +263,15 @@ export type Database = {
           start_time: string | null
           type: string | null
           user_email: string | null
+        }
+        Relationships: []
+      }
+      organizations: {
+        Row: {
+          id: string | null
+          name: string | null
+          user_is_part_of_org: boolean | null
+          user_is_subscribed_to_org: boolean | null
         }
         Relationships: []
       }
