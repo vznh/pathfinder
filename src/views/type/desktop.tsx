@@ -224,6 +224,7 @@ const DesktopView: React.FC = () => {
       fetchEvents();
       fetchOrgs();
     }
+    window.location.reload();
   }, [user, fetchEvents, fetchOrgs]);
 
   useEffect(() => {
