@@ -12,6 +12,7 @@ import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
 import { useEventsStore } from "@/stores/useEventsStore";
 import { useOrgsStore } from "@/stores/useOrgsStore";
 import { changeMapEnvOnTime } from "@/utils";
+import OrgSearchPanel from "@/components/specific/OrgSearchPanel";
 
 const geocodingClient = mbxGeocoding({
   accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!,
@@ -51,9 +52,57 @@ const DesktopView: React.FC = () => {
   const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
   const [formType, setFormType] = useState<'personal' | 'org'>('personal');
-  const orgs = useOrgsStore(state => state.orgs).flatMap((x) => (x.name!==null && x.id!==null && x.user_is_part_of_org===true ?  {name: x.name, id: x.id} : []));
+  const [orgSearchOpen, setOrgSearchOpen] = useState(false);
+  const handleOrgSearchToggle = () => setOrgSearchOpen(prev => !prev);
 
   const supabase = createClient();
+  interface Org {
+    org_id: string;
+    org_name: string;
+    userIsPartOf: boolean;
+    userIsSubscribed: boolean;
+  }
+
+
+  const orgs_array = useOrgsStore(state => state.orgs).flatMap((x) => 
+    (x.name!==null && x.id!==null && x.user_is_part_of_org!==null 
+      && x.user_is_subscribed_to_org!==null 
+      ?  {org_name: x.name, org_id: x.id, 
+        userIsPartOf: x.user_is_part_of_org, 
+        userIsSubscribed: x.user_is_subscribed_to_org} : []));
+  const [orgs, setOrgs] = useState<Org[]>(orgs_array);
+  const handleToggleSubscribe = async (id: string, next: boolean) => {
+    console.log(`Tried to ${next ? "subscribe to" : "unsubscribe from"} org ${id}`);
+    const { data: { session }, error: userError } = await supabase.auth.getSession();
+    if (next) {
+      const { error } = await supabase
+        .from('subscriptions_v0')
+        .insert({ organization_id: id, user_id: session?.user.id})
+      if (error) {
+        console.log(error)
+      }
+      else {
+        setOrgs(prev =>
+          prev.map(o => (o.org_id === id ? { ...o, userIsSubscribed: true } : o))
+        );
+      }
+    }
+    else {
+      const { error } = await supabase
+        .from('subscriptions_v0')
+        .delete()
+        .eq('user_id', session?.user.id)
+        .eq('organization_id', id)
+      if (error) {
+        console.log(error)
+      }
+      else {
+        setOrgs(prev =>
+          prev.map(o => (o.org_id === id ? { ...o, userIsSubscribed: false } : o))
+        );
+      }
+    }
+  };
   // search bar state
   const [searchInput, setSearchInput] = useState<string>("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<
@@ -137,7 +186,7 @@ const DesktopView: React.FC = () => {
         typeof row.longitude === "number" &&
         typeof row.latitude === "number"
       ) {
-        const isUserOrgEvent = orgs.some(org => org.name === row.organization_name);
+        const isUserOrgEvent = orgs.some(org => org.org_name === row.organization_name && org.userIsPartOf === true);
         const eventData: EventData = {
           id: row.id || "ERROR",
           name: row.event || "",
@@ -251,10 +300,10 @@ const DesktopView: React.FC = () => {
           end_time: formData.endTime,
         };
 
-        const org = orgs.find(o => o.name === formData.tags);
+        const org = orgs.find(o => o.org_name === formData.tags);   
         let selectedOrgId: string | undefined;
         if (org){
-          selectedOrgId = org.id;
+          selectedOrgId = org.org_id;
         } else {
           console.error("Organization not in database");
         }
@@ -316,6 +365,13 @@ const DesktopView: React.FC = () => {
         )
       )}
 
+      <OrgSearchPanel
+        isOpen={orgSearchOpen}
+        onClose={handleOrgSearchToggle}
+        orgs={orgs}
+        onToggleSubscribe={handleToggleSubscribe}
+      />
+
       <DashboardLayout
         development={false}
         onWaypointModeToggle={handleWaypointModeToggle}
@@ -323,6 +379,7 @@ const DesktopView: React.FC = () => {
         onSearchInputChange={handleSearchChange}
         filteredSuggestions={filteredSuggestions}
         onSuggestionSelect={handleSuggestionSelect}
+        onOrgSearchToggle={handleOrgSearchToggle}
         {...(showEventForm && {
           formType,
           onFormTypeToggle: () =>
