@@ -47,7 +47,7 @@ export const useEventsStore = create<EventsStore>((set) => ({
   fetchEvents: async () => {
     set({ loading: true, error: null });
     const supabase = createClient();
-    const { data, error } = await supabase.from("events_v0").select("*");
+    const { data, error } = await supabase.from("events").select("*");
     if (error) {
       set({ error: error.message, loading: false });
     } else {
