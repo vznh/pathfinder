@@ -127,7 +127,6 @@ const DesktopView: React.FC = () => {
     };
 
     fetchUser();
-    window.location.reload();
   }, [supabase]);
 
 
