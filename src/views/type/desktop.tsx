@@ -55,6 +55,7 @@ const DesktopView: React.FC = () => {
   const [orgSearchOpen, setOrgSearchOpen] = useState(false);
   const handleOrgSearchToggle = () => setOrgSearchOpen(prev => !prev);
   const fetchEvents = useEventsStore(state => state.fetchEvents);
+  const fetchOrgs = useOrgsStore(state => state.fetchOrgs);
 
   const supabase = createClient();
   interface Org {
@@ -215,8 +216,11 @@ const DesktopView: React.FC = () => {
   }, [events, user, orgs]);
 
   useEffect(() => {
-    if (user) fetchEvents();
-  }, [user, fetchEvents]);
+    if (user) {
+      fetchEvents();
+      fetchOrgs();
+    }
+  }, [user, fetchEvents, fetchOrgs]);
 
   useEffect(() => {
     if (waypointMode) {
