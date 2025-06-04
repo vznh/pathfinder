@@ -1,9 +1,9 @@
-"use client"
 import { useState, useEffect } from "react"
 import { Loader2, X, Calendar, Clock, User, MapPin, Share2 } from "lucide-react"
 import { AddToCalendarButton } from 'add-to-calendar-button-react'
 import { createClient } from "@/supabase/component"
 import EditEventForm from "../specific/EditEventForm"
+import { useRouter } from "next/router"
 
 export interface EventData {
   id: string
@@ -235,10 +235,11 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
           <button
             onClick={() => {
               if (navigator.share) {
+                const shareUrl = `https://pathfinder-weld.vercel.app/${event.id}`;
                 navigator.share({
                   title: event.name,
                   text: `${event.description || ''}\nDate: ${formatDate(event.date)}\nTime: ${formatTime(event.startTime)} - ${formatTime(event.endTime)}`,
-                  url: window.location.href
+                  url: shareUrl
                 }).catch(err => console.log('Error sharing:', err));
               }
             }}
