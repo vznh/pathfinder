@@ -64,11 +64,11 @@ const DesktopView: React.FC = () => {
   }
 
 
-  const orgs_array = useOrgsStore(state => state.orgs).flatMap((x) => 
-    (x.name!==null && x.id!==null && x.user_is_part_of_org!==null 
-      && x.user_is_subscribed_to_org!==null 
-      ?  {org_name: x.name, org_id: x.id, 
-        userIsPartOf: x.user_is_part_of_org, 
+  const orgs_array = useOrgsStore(state => state.orgs).flatMap((x) =>
+    (x.name!==null && x.id!==null && x.user_is_part_of_org!==null
+      && x.user_is_subscribed_to_org!==null
+      ?  {org_name: x.name, org_id: x.id,
+        userIsPartOf: x.user_is_part_of_org,
         userIsSubscribed: x.user_is_subscribed_to_org} : []));
   const [orgs, setOrgs] = useState<Org[]>(orgs_array);
   const handleToggleSubscribe = async (id: string, next: boolean) => {
@@ -125,6 +125,14 @@ const DesktopView: React.FC = () => {
     };
 
     fetchUser();
+
+    // Subscribe to auth state changes
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => {
+      listener?.subscription?.unsubscribe();
+    };
   }, [supabase]);
 
   // handler for typing in the search box
@@ -300,7 +308,7 @@ const DesktopView: React.FC = () => {
           end_time: formData.endTime,
         };
 
-        const org = orgs.find(o => o.org_name === formData.tags);   
+        const org = orgs.find(o => o.org_name === formData.tags);
         let selectedOrgId: string | undefined;
         if (org){
           selectedOrgId = org.org_id;
