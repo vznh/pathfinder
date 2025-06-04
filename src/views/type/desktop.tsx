@@ -183,7 +183,11 @@ const DesktopView: React.FC = () => {
   const events = useEventsStore(state => state.events);
 
   useEffect(() => {
-    if (!user && !events || events.length === 0) return;
+    if (
+      !user &&
+      (!events || events.length === 0) &&
+      (!orgs || orgs.length === 0)
+    ) return;
     for (const row of events) {
       if (
         row &&
