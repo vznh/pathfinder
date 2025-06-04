@@ -47,7 +47,7 @@ export const useOrgsStore = create<OrgsStore>((set) => ({
   fetchOrgs: async () => {
     set({ loading: true, error: null });
     const supabase = createClient();
-    const { data, error } = await supabase.from("organizations").select("*");
+    const { data, error } = await supabase.from("organizations").select();
     if (error) {
       set({ error: error.message, loading: false });
     } else {
