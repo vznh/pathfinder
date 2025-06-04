@@ -1,6 +1,7 @@
 // stores/useEventsStore
 import { create } from "zustand";
-import { EventRow } from "@/models/types"
+import { EventRow } from "@/models/types";
+import { createClient } from "@/supabase/component";
 
 export interface EventsState {
   events: EventRow[];
@@ -13,7 +14,7 @@ export interface EventsActions {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   // add an action to fetch events if they weren't from SSR, e.g.:
-  // fetchEvents: () => Promise<void>;
+  fetchEvents: () => Promise<void>;
 }
 
 export type EventsStore = EventsState & EventsActions;
@@ -42,4 +43,15 @@ export const useEventsStore = create<EventsStore>((set) => ({
     error: error,
     loading: false,
   })),
+
+  fetchEvents: async () => {
+    set({ loading: true, error: null });
+    const supabase = createClient();
+    const { data, error } = await supabase.from("events_v0").select("*");
+    if (error) {
+      set({ error: error.message, loading: false });
+    } else {
+      set({ events: data || [], loading: false, error: null });
+    }
+  },
 }));

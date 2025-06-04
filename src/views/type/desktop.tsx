@@ -54,6 +54,7 @@ const DesktopView: React.FC = () => {
   const [formType, setFormType] = useState<'personal' | 'org'>('personal');
   const [orgSearchOpen, setOrgSearchOpen] = useState(false);
   const handleOrgSearchToggle = () => setOrgSearchOpen(prev => !prev);
+  const fetchEvents = useEventsStore(state => state.fetchEvents);
 
   const supabase = createClient();
   interface Org {
@@ -135,6 +136,7 @@ const DesktopView: React.FC = () => {
     };
   }, [supabase]);
 
+
   // handler for typing in the search box
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -187,7 +189,7 @@ const DesktopView: React.FC = () => {
   const events = useEventsStore(state => state.events);
 
   useEffect(() => {
-    if (!events || events.length === 0) return;
+    if (!user && !events || events.length === 0) return;
     for (const row of events) {
       if (
         row &&
@@ -218,6 +220,10 @@ const DesktopView: React.FC = () => {
       }
     }
   }, [events, user, orgs]);
+
+  useEffect(() => {
+    if (user) fetchEvents();
+  }, [user, fetchEvents]);
 
   useEffect(() => {
     if (waypointMode) {
