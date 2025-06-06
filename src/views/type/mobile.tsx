@@ -1,8 +1,8 @@
-// views/type/desktop.tsx
-import DesktopView from "./desktop";
+// // views/type/desktop.tsx
+// import DesktopView from "./desktop";
 
-const MobileView: React.FC = () => {
-  return <DesktopView />
-};
+// const MobileView = (event_id) => {
+//   return <DesktopView event_id={event_id/>
+// };
 
-export default MobileView;
+// export default MobileView;

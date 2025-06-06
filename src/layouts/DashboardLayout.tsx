@@ -29,6 +29,7 @@ interface DashboardLayoutProps {
   formType?: 'personal' | 'org';               //  NEW
   onFormTypeToggle?: () => void;               //  NEW
   onOrgSearchToggle?: () => void;              // NEW
+  event_id: string | null;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -40,7 +41,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSuggestionSelect,
   formType,
   onFormTypeToggle,
-  onOrgSearchToggle
+  onOrgSearchToggle,
+  event_id
 }) => {
   const supabase = createClient(); // Initialize Supabase client
   const [isAuthenticated, setIsAuthenticated] = useState(false); // State for authentication status
@@ -53,7 +55,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       .then(({ data: { user } }) => {
         setIsAuthenticated(!!user);
       })
-      .catch(console.error);
 
     // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -85,7 +86,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: '/', // Redirect back to the root path
+        redirectTo: event_id == null ? '/' : '/events/' + event_id, // Redirect back to the root path
       },
     });
 
@@ -96,7 +97,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     // Supabase listener handles closing overlay and setting auth state on success
   };
 
-
+  useEffect(() => {
+    supabase.auth.getUser()
+      .then(({data: {user}}) => {
+        if (event_id && user == null) {
+          handleGoogleSignIn()
+        }
+      })
+  }, [supabase, event_id, handleGoogleSignIn])
 
   const borderClasses = development
     ? "border border-dashed border-gray-300"
