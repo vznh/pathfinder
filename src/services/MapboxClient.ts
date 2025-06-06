@@ -28,6 +28,7 @@ interface EventService {
   addBaseMarker(coords: [number, number]): void;
   addEventMarker(coords: [number, number], eventData: EventData, user: any): void;
   removeAnyMarkers(): void;
+  showEventMarker(event_id: string): void;
 }
 
 interface GeolocationService {
@@ -178,6 +179,17 @@ class EventServiceImpl implements EventService {
     })
       .setLngLat(coords)
       .addTo(this.client.getMap());
+  }
+
+  showEventMarker(event_id: string) {
+    const marker = this.eventMarkers.get(event_id) // click here!
+    if (!marker) return;
+    const el = marker.getElement();
+    if (el) {
+      el.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true })
+      );
+    }
   }
 
   addEventMarker(coordinates: [number, number], eventData: EventData, user: any): void {

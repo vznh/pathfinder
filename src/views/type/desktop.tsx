@@ -46,8 +46,11 @@ const ucscLocations = [
   { name: "Oakes Meadow", latitude: 36.9880, longitude: -122.0650 },
 ]
 
+interface ViewProps {
+  event_id: string | null
+}
 
-const DesktopView: React.FC = () => {
+const DesktopView = ({event_id}: ViewProps) => {
   const [waypointMode, setWaypointMode] = useState(false);
   const [selectedWaypoint, setSelectedWaypoint] = useState<[number, number] | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
@@ -209,7 +212,10 @@ const DesktopView: React.FC = () => {
         mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
       }
     }
-  }, [events, user, orgs]);
+    if (event_id) {
+      mapboxClient.events.showEventMarker(event_id);
+    }
+  }, [events, user, orgs, event_id]);
 
   useEffect(() => {
     if (waypointMode) {
@@ -380,6 +386,7 @@ const DesktopView: React.FC = () => {
         filteredSuggestions={filteredSuggestions}
         onSuggestionSelect={handleSuggestionSelect}
         onOrgSearchToggle={handleOrgSearchToggle}
+        event_id={event_id}
         {...(showEventForm && {
           formType,
           onFormTypeToggle: () =>
