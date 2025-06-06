@@ -97,14 +97,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     // Supabase listener handles closing overlay and setting auth state on success
   };
 
-  useEffect(() => {
-    supabase.auth.getUser()
-      .then(({data: {user}}) => {
-        if (event_id && user == null) {
-          handleGoogleSignIn()
-        }
-      })
-  }, [supabase, event_id, handleGoogleSignIn])
+  // useEffect(() => {
+  //   supabase.auth.getUser()
+  //     .then(({data: {user}}) => {
+  //       if (event_id && user == null) {
+  //         handleGoogleSignIn()
+  //       }
+  //     })
+  // }, [supabase, event_id, handleGoogleSignIn])
 
   const borderClasses = development
     ? "border border-dashed border-gray-300"
