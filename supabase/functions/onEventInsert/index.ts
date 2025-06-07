@@ -54,6 +54,7 @@ serve(async (req)=>{
   console.log(payload);
   const organization_id = payload?.record?.organization_id;
   const event_title = payload?.record?.event;
+  const event_id = payload?.record?.id;
   if (organization_id != null) {
     const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
       global: {
@@ -86,7 +87,7 @@ serve(async (req)=>{
       await sendEmail({
         organization: row?.name,
         eventTitle: event_title,
-        url: "https://pathfinder-weld.vercel.app/",
+        url: "https://pathfinder-hobin.vercel.app/events/" + event_id,
         to: row?.email
       });
     }

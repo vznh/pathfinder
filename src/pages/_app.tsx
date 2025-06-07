@@ -14,7 +14,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
           <title>Pathfinder</title>
           <meta name="description" content="Navigating campus should be easy." />
           <meta name="author" content="Jason Son" />
-          <link rel="canonical" href="https://pathfinder-weld.vercel.app" />
+          <link rel="canonical" href="https://pathfinder-hobin.vercel.app" />
 
           {/* Open Graph / Facebook */}
           <meta property="og:title" content="Pathfinder" />
@@ -23,7 +23,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
             content="Navigating campus should be easy."
           />
           <meta property="og:image" content="/cover.png" />
-          <meta property="og:url" content="https://pathfinder-weld.vercel.app" />
+          <meta property="og:url" content="https://pathfinder-hobin.vercel.app" />
           <meta property="og:type" content="website" />
 
           {/* Twitter */}

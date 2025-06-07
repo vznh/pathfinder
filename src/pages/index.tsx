@@ -5,7 +5,7 @@ import type {EventRow, OrgRow } from "@/models/types"
 import { serverGetEventsAndOrgs } from "@/utils";
 
 const Homepage: NextPage<{
-  events: EventRow[], orgs: OrgRow[];
+  events: EventRow[], orgs: OrgRow[]
 }> = ({ events, orgs }) => {
   return (
     <div>
