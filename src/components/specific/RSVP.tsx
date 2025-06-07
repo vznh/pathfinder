@@ -238,7 +238,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
                 const shareUrl = `https://pathfinder-weld.vercel.app/events/${event.id}`;
                 navigator.share({
                   title: event.name,
-                  text: `${event.description || ''}\nDate: ${formatDate(event.date)}\nTime: ${formatTime(event.startTime)} - ${formatTime(event.endTime)}`,
+                  text: `Date: ${formatDate(event.date)}\nTime: ${formatTime(event.startTime)} - ${formatTime(event.endTime)}`,
                   url: shareUrl
                 }).catch(err => console.log('Error sharing:', err));
               }
