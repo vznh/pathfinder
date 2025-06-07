@@ -235,7 +235,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
           <button
             onClick={() => {
               if (navigator.share) {
-                const shareUrl = `https://pathfinder-weld.vercel.app/events/${event.id}`;
+                const shareUrl = `https://pathfinder-hobin.vercel.app/events/${event.id}`;
                 navigator.share({
                   title: event.name,
                   text: `Date: ${formatDate(event.date)}\nTime: ${formatTime(event.startTime)} - ${formatTime(event.endTime)}`,
