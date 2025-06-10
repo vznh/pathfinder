@@ -87,35 +87,39 @@ const DesktopView = ({event_id}: ViewProps) => {
     setOrgs(formatted);
   }, [rawOrgs]);
 
-  for (const row of events) {
-    if (
-      row &&
-      typeof row.longitude === "number" &&
-      typeof row.latitude === "number"
-    ) {
-      const isUserOrgEvent = orgs.some(org => org.org_name === row.organization_name && org.userIsPartOf === true);
-      const eventData: EventData = {
-        id: row.id || "ERROR",
-        name: row.event || "",
-        type: row.type || "personal",
-        description: row.description || "",
-        date: row.date || new Date().toISOString().split('T')[0],
-        startTime: row.start_time || "00:00",
-        endTime: row.end_time || "23:59",
-        rsvp_count: row.rsvp_count,
-        user_email: row.user_email,
-        organization_name: row.organization_name,
-        longitude: row.longitude,
-        latitude: row.latitude,
-        creator: {
-          name: row.user_email || row.organization_name || 'ERROR',
-          isClub: row.type === "club",
-          isUserOrg: isUserOrgEvent
-        }
-      };
-      mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
+  useEffect(() => {
+    mapboxClient.events.removeAnyMarkers();
+
+    for (const row of events) {
+      if (
+        row &&
+        typeof row.longitude === "number" &&
+        typeof row.latitude === "number"
+      ) {
+        const isUserOrgEvent = orgs.some(org => org.org_name === row.organization_name && org.userIsPartOf === true);
+        const eventData: EventData = {
+          id: row.id || "ERROR",
+          name: row.event || "",
+          type: row.type || "personal",
+          description: row.description || "",
+          date: row.date || new Date().toISOString().split('T')[0],
+          startTime: row.start_time || "00:00",
+          endTime: row.end_time || "23:59",
+          rsvp_count: row.rsvp_count,
+          user_email: row.user_email,
+          organization_name: row.organization_name,
+          longitude: row.longitude,
+          latitude: row.latitude,
+          creator: {
+            name: row.user_email || row.organization_name || 'ERROR',
+            isClub: row.type === "club",
+            isUserOrg: isUserOrgEvent
+          }
+        };
+        mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
+      }
     }
-  }
+  }, [events, orgs, user]);
 
   const handleToggleSubscribe = async (id: string, next: boolean) => {
     console.log(`Tried to ${next ? "subscribe to" : "unsubscribe from"} org ${id}`);
