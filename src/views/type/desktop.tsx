@@ -1,3 +1,5 @@
+// views/type/desktop.tsx
+'use client'
 import Map from "@/components/Map";
 import mapboxClient from "@/services/MapboxClient";
 import { EventData } from "@/components/specific/RSVP";
@@ -13,6 +15,7 @@ import { useEventsStore } from "@/stores/useEventsStore";
 import { useOrgsStore } from "@/stores/useOrgsStore";
 import { changeMapEnvOnTime } from "@/utils";
 import OrgSearchPanel from "@/components/specific/OrgSearchPanel";
+import { DateRange } from "@/components/reusable/DateRangeFilter";
 
 const geocodingClient = mbxGeocoding({
   accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!,
@@ -72,6 +75,11 @@ const DesktopView = ({event_id}: ViewProps) => {
   const rawOrgs = useOrgsStore(state => state.orgs);
   const [orgs, setOrgs] = useState<Org[]>([]);
 
+  const [dateRange, setDateRange] = useState<DateRange>({
+    startDate: "",
+    endDate: "",
+  });
+
   useEffect(() => {
     const formatted = rawOrgs.flatMap((x) =>
       (x.name !== null && x.id !== null && x.user_is_part_of_org !== null
@@ -96,6 +104,20 @@ const DesktopView = ({event_id}: ViewProps) => {
         typeof row.longitude === "number" &&
         typeof row.latitude === "number"
       ) {
+        const eventDate = row.date;
+        const eventStartTime = row.start_time;
+        const eventEndTime = row.end_time;
+
+        if (eventDate === null) continue;
+
+        // Check if event matches date filter
+        // An event matches if:
+        // 1. No start date filter OR event date is on or after start date
+        // 2. No end date filter OR event date is on or before end date
+        const matchesDateFilter =
+          (!dateRange.startDate || eventDate >= dateRange.startDate) &&
+          (!dateRange.endDate || eventDate <= dateRange.endDate);
+
         const isUserOrgEvent = orgs.some(org => org.org_name === row.organization_name && org.userIsPartOf === true);
         const eventData: EventData = {
           id: row.id || "ERROR",
@@ -116,10 +138,12 @@ const DesktopView = ({event_id}: ViewProps) => {
             isUserOrg: isUserOrgEvent
           }
         };
-        mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
+        if (matchesDateFilter) {
+          mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
+        }
       }
     }
-  }, [events, orgs, user]);
+  }, [events, orgs, user, dateRange]);
 
   const handleToggleSubscribe = async (id: string, next: boolean) => {
     console.log(`Tried to ${next ? "subscribe to" : "unsubscribe from"} org ${id}`);
@@ -347,6 +371,7 @@ const DesktopView = ({event_id}: ViewProps) => {
   const handleClosePopup = () => {
     setSelectedWaypoint(null);
     setShowEventForm(false);
+    mapboxClient.events.removeBaseMarker();
   };
 
   const handleOpenEventForm = () => {
@@ -399,6 +424,8 @@ const DesktopView = ({event_id}: ViewProps) => {
         onSuggestionSelect={handleSuggestionSelect}
         onOrgSearchToggle={handleOrgSearchToggle}
         event_id={event_id}
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
         {...(showEventForm && {
           formType,
           onFormTypeToggle: () =>
