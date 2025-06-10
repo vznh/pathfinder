@@ -1,13 +1,11 @@
 // layouts/DashboardLayout.tsx
+'use client'
 import type React from "react";
 import { useState, useEffect } from "react"; // Import useState and useEffect
-import EmailModalButton from "@/components/specific/EmailModal";
-import DropdownMenu from "@/components/reusable/DropDownMenu";
 import { Button } from "@/components/reusable/Button"
 import { createClient } from "@/supabase/component";
 import { GoogleSignInModal } from "@/components/specific/SignInOverlay"; // Import the SignInOverlay component
 import {
-  DotsVerticalIcon,
   PlusCircledIcon,
   MagnifyingGlassIcon,
   Link2Icon,
@@ -15,6 +13,7 @@ import {
   LayersIcon
 } from "@radix-ui/react-icons";
 import Legend from "@/components/specific/Legend";
+import DateRangeFilter, { DateRange } from "@/components/reusable/DateRangeFilter";
 
 interface DashboardLayoutProps {
   development?: boolean;
@@ -23,10 +22,12 @@ interface DashboardLayoutProps {
   onSearchInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   filteredSuggestions: { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[];
   onSuggestionSelect: (s: {name: string; coordinates: [number, number]; source: "local" | "mapbox" }) => void;
-  formType?: 'personal' | 'org';               //  NEW
-  onFormTypeToggle?: () => void;               //  NEW
-  onOrgSearchToggle?: () => void;              // NEW
+  formType?: 'personal' | 'org';
+  onFormTypeToggle?: () => void;
+  onOrgSearchToggle?: () => void;
   event_id: string | null;
+  dateRange: DateRange;
+  onDateRangeChange: (r: DateRange) => void;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -39,12 +40,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   formType,
   onFormTypeToggle,
   onOrgSearchToggle,
-  event_id
+  event_id,
+  dateRange,
+  onDateRangeChange,
 }) => {
   const supabase = createClient(); // Initialize Supabase client
   const [isAuthenticated, setIsAuthenticated] = useState(false); // State for authentication status
   const [isOverlayOpen, setIsOverlayOpen] = useState(false); // State for overlay visibility
   const [signInError, setSignInError] = useState<string | null>(null); // State for sign-in errors
+
 
   useEffect(() => {
     // Check initial auth state
@@ -115,23 +119,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-start justify-start p-4 ${borderClasses}`}
       >
         {/* Top left */}
-        <DropdownMenu
-          toggleIcon={<DotsVerticalIcon className="w-5 h-5 pointer-events-auto" />}
-          position="top-left"
-          theme="light"
-          label="Quick actions"
-          buttonClassName="bg-white w-12 h-12 flex items-center justify-center"
+        <button
+          className="pointer-events-auto p-2 rounded-lg bg-white w-12 h-12 flex items-center justify-center hover:bg-gray-100 text-gray-800 transition"
+          aria-label="Add"
+          onClick={onWaypointModeToggle}
         >
-          <div className="flex flex-col gap-2 pointer-events-auto">
-            <button
-              className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
-              aria-label="Add"
-              onClick={onWaypointModeToggle}
-            >
-              <PlusCircledIcon className="w-5 h-5" />
-            </button>
-          </div>
-        </DropdownMenu>
+          <PlusCircledIcon className="w-5 h-5" />
+        </button>
       </div>
 
       <div
@@ -220,7 +214,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-end justify-center p-4 ${borderClasses}`}
       >
         {/* Bottom center */}
-        <EmailModalButton />
+        <DateRangeFilter
+          range={dateRange}
+          onChange={onDateRangeChange}
+          className="pointer-events-auto ml-4"
+        />
       </div>
       <div
         className={`pointer-events-none flex items-end justify-end p-4 ${borderClasses}`}

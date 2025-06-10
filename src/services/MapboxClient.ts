@@ -22,7 +22,9 @@ interface MapboxClient {
   getMap(): mapboxgl.Map;
 }
 
-interface NavigationService {}
+interface NavigationService {
+  navigateTo(coords: [number, number]): void;
+}
 
 interface EventService {
   addBaseMarker(coords: [number, number]): void;
@@ -113,6 +115,11 @@ class NavigationServiceImpl implements NavigationService {
 
   constructor(client: MapboxClient) {
     this.client = client;
+  }
+
+  navigateTo(coords: [number, number]) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${coords[1]},${coords[0]}`;
+    window.open(url, "_blank");
   }
 }
 

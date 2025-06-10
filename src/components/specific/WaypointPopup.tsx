@@ -1,4 +1,5 @@
 import React from "react";
+import mapboxClient from "@/services/MapboxClient";
 
 interface WaypointPopupProps {
   coordinates: [number, number];
@@ -22,7 +23,7 @@ const WaypointPopup: React.FC<WaypointPopupProps> = ({ coordinates, onCreateEven
         </div>
         <div className="flex gap-2 mb-4">
           <button
-            onClick={onClose}
+            onClick={() => mapboxClient.navigation.navigateTo(coordinates)}
             className="flex-1 bg-white text-gray-900 rounded-lg py-2 font-semibold shadow hover:bg-gray-100 transition"
           >
             Navigate
