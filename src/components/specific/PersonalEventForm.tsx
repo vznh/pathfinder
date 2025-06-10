@@ -12,12 +12,16 @@ export interface PersonalEventFormProps {
     endTime: string;
   }) => void;
   onCancel: () => void;
+  formType?: 'personal' | 'org';
+  onFormTypeToggle?: () => void;
 }
 
 const PersonalEventForm: React.FC<PersonalEventFormProps> = ({
   coordinates,
   onSubmit,
   onCancel,
+  formType,
+  onFormTypeToggle,
 }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -61,6 +65,8 @@ const PersonalEventForm: React.FC<PersonalEventFormProps> = ({
       onSubmit={handleSubmit}
       onCancel={onCancel}
       tagsInput={tagsInput}
+      formType={formType}
+      onFormTypeToggle={onFormTypeToggle}
     />
   );
 };

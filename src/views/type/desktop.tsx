@@ -398,12 +398,24 @@ const DesktopView = ({event_id}: ViewProps) => {
             coordinates={selectedWaypoint}
             onSubmit={handleCreateEvent}
             onCancel={handleClosePopup}
+            formType={formType}
+            onFormTypeToggle={() =>
+              setFormType((prev) =>
+                prev === "personal" ? "org" : "personal"
+              )
+            }
           />
         ) : (
           <OrganizationEventForm
             coordinates={selectedWaypoint}
             onSubmit={handleCreateEvent}
             onCancel={handleClosePopup}
+            formType={formType}
+            onFormTypeToggle={() =>
+              setFormType((prev) =>
+                prev === "personal" ? "org" : "personal"
+              )
+            }
           />
         )
       )}
@@ -426,11 +438,6 @@ const DesktopView = ({event_id}: ViewProps) => {
         event_id={event_id}
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
-        {...(showEventForm && {
-          formType,
-          onFormTypeToggle: () =>
-            setFormType(formType === "personal" ? "org" : "personal"),
-        })}
       />
     </div>
   );

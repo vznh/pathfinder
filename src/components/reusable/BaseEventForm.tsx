@@ -16,6 +16,8 @@ export interface BaseEventFormProps {
   onSubmit: (e: React.FormEvent) => void
   onCancel: () => void
   tagsInput: React.ReactNode
+  formType?: 'personal' | 'org'
+  onFormTypeToggle?: () => void
 }
 
 const BaseEventForm: React.FC<BaseEventFormProps> = ({
@@ -25,6 +27,8 @@ const BaseEventForm: React.FC<BaseEventFormProps> = ({
   onSubmit,
   onCancel,
   tagsInput,
+  formType,
+  onFormTypeToggle,
 }) => {
 
   return (
@@ -99,21 +103,32 @@ const BaseEventForm: React.FC<BaseEventFormProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 rounded bg-gray-600 text-white hover:bg-gray-500"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
-            >
-              {title === "Edit Event" ? "Save" : "Create"}
-            </button>
-          </div>
+          <div className="mt-4 flex items-center justify-between">
+            {onFormTypeToggle && formType && (
+              <button
+                type="button"
+                onClick={onFormTypeToggle}
+                className="text-xs bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600"
+              >
+                {formType === "personal" ? "Switch to Org" : "Switch to Personal"}
+              </button>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-4 py-2 rounded bg-gray-600 text-white hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
+              >
+                {title === "Edit Event" ? "Save" : "Create"}
+              </button>
+            </div>
+            </div>
         </form>
       </div>
     </div>

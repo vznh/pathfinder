@@ -22,8 +22,6 @@ interface DashboardLayoutProps {
   onSearchInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   filteredSuggestions: { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[];
   onSuggestionSelect: (s: {name: string; coordinates: [number, number]; source: "local" | "mapbox" }) => void;
-  formType?: 'personal' | 'org';
-  onFormTypeToggle?: () => void;
   onOrgSearchToggle?: () => void;
   event_id: string | null;
   dateRange: DateRange;
@@ -37,8 +35,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSearchInputChange,
   filteredSuggestions,
   onSuggestionSelect,
-  formType,
-  onFormTypeToggle,
   onOrgSearchToggle,
   event_id,
   dateRange,
@@ -173,14 +169,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             aria-label="Search Organizations"
           >
             <LayersIcon className="w-7 h-7" />
-          </button>
-        )}
-        {onFormTypeToggle && formType && (
-          <button
-            onClick={onFormTypeToggle}
-            className="pointer-events-auto text-xs bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600"
-          >
-            {formType === "personal" ? "Switch to Org" : "Switch to Personal"}
           </button>
         )}
       </div>
