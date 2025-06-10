@@ -15,7 +15,8 @@ export default function LoginPage() {
     if (error) {
       console.error(error)
     }
-    router.push('/')
+    await router.push('/')
+    router.reload()
   }
 
   async function signUp() {
@@ -23,7 +24,8 @@ export default function LoginPage() {
     if (error) {
       console.error(error)
     }
-    router.push('/')
+    await router.push('/')
+    router.reload()
   }
 
   return (
