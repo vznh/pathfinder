@@ -8,10 +8,7 @@ import { createClient } from "@/supabase/component";
 import { GoogleSignInModal } from "@/components/specific/SignInOverlay"; // Import the SignInOverlay component
 import {
   DotsVerticalIcon,
-  MixerHorizontalIcon,
   PlusCircledIcon,
-  SewingPinFilledIcon,
-  ClockIcon,
   MagnifyingGlassIcon,
   Link2Icon,
   LinkBreak2Icon,
@@ -128,28 +125,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="flex flex-col gap-2 pointer-events-auto">
             <button
               className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
-              aria-label="Clock"
-            >
-              <ClockIcon className="w-5 h-5" />
-            </button>
-            <button
-              className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
-              aria-label="Filters"
-            >
-              <MixerHorizontalIcon className="w-5 h-5" />
-            </button>
-            <button
-              className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
               aria-label="Add"
               onClick={onWaypointModeToggle}
             >
               <PlusCircledIcon className="w-5 h-5" />
-            </button>
-            <button
-              className="flex items-center justify-center p-2 rounded-lg bg-white hover:bg-gray-100 text-gray-800 transition"
-              aria-label="Pin"
-            >
-              <SewingPinFilledIcon className="w-5 h-5" />
             </button>
           </div>
         </DropdownMenu>

@@ -39,17 +39,9 @@ const WaypointPopup: React.FC<WaypointPopupProps> = ({ coordinates, onCreateEven
           Coordinates:<br />
           {coordinates[1].toFixed(6)}° N, {coordinates[0].toFixed(6)}° W
         </div>
-        <div className="flex flex-col gap-2">
-          <button className="flex items-center gap-2 bg-gray-700 text-gray-400 rounded-lg px-3 py-2 text-sm">
-            <span className="text-lg">＋</span> Add to your saved waypoints
-          </button>
-          <button className="flex items-center gap-2 bg-gray-700 text-gray-400 rounded-lg px-3 py-2 text-sm">
-            <span className="text-lg">⚠️</span> Report anything suspicious
-          </button>
-        </div>
       </div>
     </div>
   );
 };
 
-export default WaypointPopup; 
+export default WaypointPopup;

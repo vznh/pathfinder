@@ -50,9 +50,6 @@ const MapView = ({ events, orgs, event_id }: MapViewProps) => {
     }
   }, [orgs, setOrgs]);
 
-  // const isDesktop = windowSize && windowSize.width >= 768;
-  // const ViewComponent = isDesktop ? DesktopView : MobileView;
-
   return <DesktopView event_id={event_id}/>
 };
 

@@ -15,7 +15,8 @@ export default function LoginPage() {
     if (error) {
       console.error(error)
     }
-    await router.push('/')
+    await supabase.auth.getSession()
+    await router.replace('/')
     router.reload()
   }
 
@@ -24,7 +25,8 @@ export default function LoginPage() {
     if (error) {
       console.error(error)
     }
-    await router.push('/')
+    await supabase.auth.getSession()
+    await router.replace('/')
     router.reload()
   }
 
