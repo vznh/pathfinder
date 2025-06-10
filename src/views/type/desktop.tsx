@@ -57,6 +57,8 @@ const DesktopView = ({event_id}: ViewProps) => {
   const [formType, setFormType] = useState<'personal' | 'org'>('personal');
   const [orgSearchOpen, setOrgSearchOpen] = useState(false);
   const handleOrgSearchToggle = () => setOrgSearchOpen(prev => !prev);
+  const events = useEventsStore(state => state.events);
+  const [user, setUser] = useState<any>(null);
 
   const supabase = createClient();
   interface Org {
@@ -74,6 +76,37 @@ const DesktopView = ({event_id}: ViewProps) => {
         userIsPartOf: x.user_is_part_of_org, 
         userIsSubscribed: x.user_is_subscribed_to_org} : []));
   const [orgs, setOrgs] = useState<Org[]>(orgs_array);
+
+  for (const row of events) {
+    if (
+      row &&
+      typeof row.longitude === "number" &&
+      typeof row.latitude === "number"
+    ) {
+      const isUserOrgEvent = orgs.some(org => org.org_name === row.organization_name && org.userIsPartOf === true);
+      const eventData: EventData = {
+        id: row.id || "ERROR",
+        name: row.event || "",
+        type: row.type || "personal",
+        description: row.description || "",
+        date: row.date || new Date().toISOString().split('T')[0],
+        startTime: row.start_time || "00:00",
+        endTime: row.end_time || "23:59",
+        rsvp_count: row.rsvp_count,
+        user_email: row.user_email,
+        organization_name: row.organization_name,
+        longitude: row.longitude,
+        latitude: row.latitude,
+        creator: {
+          name: row.user_email || row.organization_name || 'ERROR',
+          isClub: row.type === "club",
+          isUserOrg: isUserOrgEvent
+        }
+      };
+      mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
+    }
+  }
+
   const handleToggleSubscribe = async (id: string, next: boolean) => {
     console.log(`Tried to ${next ? "subscribe to" : "unsubscribe from"} org ${id}`);
     const { data: { session }, error: userError } = await supabase.auth.getSession();
@@ -106,13 +139,16 @@ const DesktopView = ({event_id}: ViewProps) => {
       }
     }
   };
+
+
+
   // search bar state
   const [searchInput, setSearchInput] = useState<string>("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<
     { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[]
   >([]);
 
-  const [user, setUser] = useState<any>(null);
+  
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null); // Ref to store interval ID
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
 
@@ -178,44 +214,6 @@ const DesktopView = ({event_id}: ViewProps) => {
     setFilteredSuggestions([]);
     mapboxClient.camera.zoomTo(s.coordinates, 18, true);
   };
-
-  const events = useEventsStore(state => state.events);
-
-  useEffect(() => {
-    if (!events || events.length === 0) return;
-    for (const row of events) {
-      if (
-        row &&
-        typeof row.longitude === "number" &&
-        typeof row.latitude === "number"
-      ) {
-        const isUserOrgEvent = orgs.some(org => org.org_name === row.organization_name && org.userIsPartOf === true);
-        const eventData: EventData = {
-          id: row.id || "ERROR",
-          name: row.event || "",
-          type: row.type || "personal",
-          description: row.description || "",
-          date: row.date || new Date().toISOString().split('T')[0],
-          startTime: row.start_time || "00:00",
-          endTime: row.end_time || "23:59",
-          rsvp_count: row.rsvp_count,
-          user_email: row.user_email,
-          organization_name: row.organization_name,
-          longitude: row.longitude,
-          latitude: row.latitude,
-          creator: {
-            name: row.user_email || row.organization_name || 'ERROR',
-            isClub: row.type === "club",
-            isUserOrg: isUserOrgEvent
-          }
-        };
-        mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
-      }
-    }
-    if (event_id) {
-      mapboxClient.events.showEventMarker(event_id);
-    }
-  }, [events, user, orgs, event_id]);
 
   useEffect(() => {
     if (waypointMode) {
