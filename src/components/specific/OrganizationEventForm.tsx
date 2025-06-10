@@ -15,12 +15,16 @@ export interface OrganizationEventFormProps {
     endTime: string;
   }) => void;
   onCancel: () => void;
+  formType?: 'personal' | 'org';
+  onFormTypeToggle?: () => void;
 }
 
 const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
   coordinates,
   onSubmit,
   onCancel,
+  formType,
+  onFormTypeToggle,
 }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -81,6 +85,8 @@ const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
       onSubmit={handleSubmit}
       onCancel={onCancel}
       tagsInput={tagsInput}
+      formType={formType}
+      onFormTypeToggle={onFormTypeToggle}
     />
   );
 };
