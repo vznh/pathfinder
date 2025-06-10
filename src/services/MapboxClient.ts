@@ -28,7 +28,8 @@ interface EventService {
   addBaseMarker(coords: [number, number]): void;
   addEventMarker(coords: [number, number], eventData: EventData, user: any): void;
   removeAnyMarkers(): void;
-  showEventMarker(event_id: string): void;
+  removeBaseMarker(): void;
+  showEventMarker(event_id: string): void; 
 }
 
 interface GeolocationService {
@@ -169,7 +170,7 @@ class EventServiceImpl implements EventService {
       );
 
     // Clear any existing instance of markers
-    this.removeAnyMarkers();
+    this.removeBaseMarker();
 
     // TODO: Make this marker into a 3D renderage of a sewing pin
     this.marker = new mapboxgl.Marker({
@@ -290,11 +291,15 @@ class EventServiceImpl implements EventService {
     this.eventMarkers.set(eventData.id, marker);
   }
 
-  removeAnyMarkers(): void {
+  removeBaseMarker(): void {
     if (this.marker) {
       this.marker.remove();
       this.marker = null;
     }
+  }
+
+  removeAnyMarkers(): void {
+    this.removeBaseMarker();
     // Remove all event markers
     this.eventMarkers.forEach(marker => marker.remove());
     this.eventMarkers.clear();
