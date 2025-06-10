@@ -30,10 +30,8 @@ export async function serverGetEventsAndOrgs(context: GetServerSidePropsContext)
   if (userError || !user) {
     console.error("User not found or error:", userError);
     return {
-      props: {
-        events: [],
-        orgs: []
-      }
+      events: [],
+      orgs: []
     }
   }
 

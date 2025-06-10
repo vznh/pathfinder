@@ -69,13 +69,23 @@ const DesktopView = ({event_id}: ViewProps) => {
   }
 
 
-  const orgs_array = useOrgsStore(state => state.orgs).flatMap((x) => 
-    (x.name!==null && x.id!==null && x.user_is_part_of_org!==null 
-      && x.user_is_subscribed_to_org!==null 
-      ?  {org_name: x.name, org_id: x.id, 
-        userIsPartOf: x.user_is_part_of_org, 
-        userIsSubscribed: x.user_is_subscribed_to_org} : []));
-  const [orgs, setOrgs] = useState<Org[]>(orgs_array);
+  const rawOrgs = useOrgsStore(state => state.orgs);
+  const [orgs, setOrgs] = useState<Org[]>([]);
+
+  useEffect(() => {
+    const formatted = rawOrgs.flatMap((x) =>
+      (x.name !== null && x.id !== null && x.user_is_part_of_org !== null
+        && x.user_is_subscribed_to_org !== null
+        ? {
+            org_name: x.name,
+            org_id: x.id,
+            userIsPartOf: x.user_is_part_of_org,
+            userIsSubscribed: x.user_is_subscribed_to_org,
+          }
+        : [])
+    );
+    setOrgs(formatted);
+  }, [rawOrgs]);
 
   for (const row of events) {
     if (
