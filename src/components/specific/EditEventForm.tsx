@@ -4,7 +4,6 @@ import BaseEventForm from "../reusable/BaseEventForm"
 export interface EditEventFormProps {
   initialData: {
     name: string
-    tags: string
     description: string
     date: string
     startTime: string
@@ -14,7 +13,6 @@ export interface EditEventFormProps {
   onCancel: () => void
   readonlyTags?: boolean
   tagsLabel?: string
-
 }
 
 const EditEventForm: React.FC<EditEventFormProps> = ({
@@ -38,19 +36,7 @@ const EditEventForm: React.FC<EditEventFormProps> = ({
     onSubmit(formData)
   }
 
-  const tagsInput = (
-    <div>
-      <label className="block text-sm mb-1">{tagsLabel}</label>
-      <input
-        type="text"
-        name="tags"
-        value={formData.tags}
-        onChange={handleChange}
-        readOnly={readonlyTags}
-        className={`w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none ${readonlyTags ? "cursor-not-allowed opacity-70" : ""}`}
-      />
-    </div>
-  )
+  // Remove tagsInput and all tags logic
 
   return (
     <BaseEventForm
@@ -59,7 +45,6 @@ const EditEventForm: React.FC<EditEventFormProps> = ({
       onChange={handleChange}
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      tagsInput={tagsInput}
     />
   )
 }

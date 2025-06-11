@@ -7,7 +7,6 @@ export interface OrganizationEventFormProps {
   coordinates: [number, number];
   onSubmit: (eventData: {
     name: string;
-    tags: string;
     description: string;
     date: string;
     startTime: string;
@@ -27,11 +26,11 @@ const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     name: "",
-    tags: "",
     description: "",
     date: "",
     startTime: "",
     endTime: "",
+    // tags removed from formData
   });
 
   const [options, setOptions] = useState<string[]>([]);
@@ -52,30 +51,11 @@ const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Pass tags as a separate argument if needed, but do not include in formData
+    onSubmit({ ...formData });
   };
 
-  const tagsInput = (
-    <div>
-      <label className="block text-sm mb-1">Organization</label>
-      <select
-        name="tags"
-        value={formData.tags}
-        onChange={handleChange}
-        required
-        className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none"
-      >
-        <option value="" disabled>
-          Select organization
-        </option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+  // Remove tagsInput and all tags logic
 
   return (
     <BaseEventForm
@@ -83,7 +63,6 @@ const OrganizationEventForm: React.FC<OrganizationEventFormProps> = ({
       onChange={handleChange}
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      tagsInput={tagsInput}
       formType={formType}
       onFormTypeToggle={onFormTypeToggle}
     />
