@@ -1,3 +1,4 @@
+import type { Root } from "react-dom/client";
 // src/components/MapboxClient.tsx
 import mapboxgl from "mapbox-gl";
 import { EventData, EventRsvp } from "@/components/specific/RSVP";
@@ -28,7 +29,12 @@ interface NavigationService {
 
 interface EventService {
   addBaseMarker(coords: [number, number]): void;
-  addEventMarker(coords: [number, number], eventData: EventData, user: any): void;
+  addEventMarker(
+    coords: [number, number],
+    eventData: EventData,
+    user: any,
+    onUpdate?: () => void
+  ): void;
   removeAnyMarkers(): void;
   removeBaseMarker(): void;
   showEventMarker(event_id: string): void; 
@@ -124,6 +130,18 @@ class NavigationServiceImpl implements NavigationService {
 }
 
 class EventServiceImpl implements EventService {
+  // Remove all RSVP popups and unmount any React roots
+  private removeAllRsvpPopups() {
+    // Remove all mapbox popups
+    const existingPopups = document.getElementsByClassName('mapboxgl-popup');
+    Array.from(existingPopups).forEach(popup => popup.remove());
+    // Unmount any React RSVP root
+    if (this.currentRsvpRoot) {
+      this.currentRsvpRoot.unmount();
+      this.currentRsvpRoot = null;
+    }
+  }
+  private currentRsvpRoot: Root | null = null;
   private client: MapboxClient;
   private marker: mapboxgl.Marker | null = null;
   private eventMarkers: Map<string, mapboxgl.Marker> = new Map();
@@ -205,7 +223,12 @@ class EventServiceImpl implements EventService {
     }
   }
 
-  addEventMarker(coordinates: [number, number], eventData: EventData, user: any): void {
+  addEventMarker(
+    coordinates: [number, number],
+    eventData: EventData,
+    user: any,
+    onUpdate?: () => void
+  ): void {
     if (!this.client.getMap())
       throw new Error(
         "Map instance isn't initialized. Caught from func addEventMarker"
@@ -277,9 +300,8 @@ class EventServiceImpl implements EventService {
       e.stopPropagation(); // Prevent map click
       hoverPopup.remove(); // Remove hover popup when clicking
 
-      // Remove any existing popups
-      const existingPopups = document.getElementsByClassName('mapboxgl-popup');
-      Array.from(existingPopups).forEach(popup => popup.remove());
+      // Remove all RSVP popups and unmount any React RSVP root
+      this.removeAllRsvpPopups();
 
       // Set popup content and add to map
       rsvpPopup.setDOMContent(popupContent);
@@ -288,13 +310,16 @@ class EventServiceImpl implements EventService {
 
       // Create React root and render RSVP component
       const root = createRoot(popupContent);
+      this.currentRsvpRoot = root;
       root.render(
         React.createElement(EventRsvp, {
           event: eventData,
           onClose: () => {
             rsvpPopup.remove();
             root.unmount();
-          }
+            if (this.currentRsvpRoot === root) this.currentRsvpRoot = null;
+          },
+          onUpdate: onUpdate
         })
       );
     });

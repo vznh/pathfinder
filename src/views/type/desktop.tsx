@@ -113,6 +113,14 @@ const DesktopView = ({event_id}: ViewProps) => {
   useEffect(() => {
     mapboxClient.events.removeAnyMarkers();
 
+    // Only pass onUpdate to the RSVP popup for the selected event (event_id)
+    function handleRefreshEventsAndOrgs() {
+      fetchEventsAndOrgs().then(({ events, orgs }) => {
+        setEvents(events);
+        setRawOrgs(orgs);
+      });
+    }
+
     for (const row of events) {
       if (
         row &&
@@ -120,15 +128,9 @@ const DesktopView = ({event_id}: ViewProps) => {
         typeof row.latitude === "number"
       ) {
         const eventDate = row.date;
-        const eventStartTime = row.start_time;
-        const eventEndTime = row.end_time;
-
         if (eventDate === null) continue;
 
         // Check if event matches date filter
-        // An event matches if:
-        // 1. No start date filter OR event date is on or after start date
-        // 2. No end date filter OR event date is on or before end date
         const matchesDateFilter =
           (!dateRange.startDate || eventDate >= dateRange.startDate) &&
           (!dateRange.endDate || eventDate <= dateRange.endDate);
@@ -154,7 +156,21 @@ const DesktopView = ({event_id}: ViewProps) => {
           }
         };
         if (matchesDateFilter) {
-          mapboxClient.events.addEventMarker([row.longitude, row.latitude], eventData, user);
+          // Only pass onUpdate for the RSVP popup of the selected event
+          if (event_id && row.id === event_id) {
+            mapboxClient.events.addEventMarker(
+              [row.longitude, row.latitude],
+              eventData,
+              user,
+              handleRefreshEventsAndOrgs
+            );
+          } else {
+            mapboxClient.events.addEventMarker(
+              [row.longitude, row.latitude],
+              eventData,
+              user
+            );
+          }
         }
       }
     }
