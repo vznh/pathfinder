@@ -5,7 +5,6 @@ export interface PersonalEventFormProps {
   coordinates: [number, number];
   onSubmit: (eventData: {
     name: string;
-    tags: string;
     description: string;
     date: string;
     startTime: string;
@@ -25,7 +24,6 @@ const PersonalEventForm: React.FC<PersonalEventFormProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     name: "",
-    tags: "",
     description: "",
     date: "",
     startTime: "",
@@ -44,19 +42,7 @@ const PersonalEventForm: React.FC<PersonalEventFormProps> = ({
     onSubmit(formData);
   };
 
-  const tagsInput = (
-    <div>
-      <label className="block text-sm mb-1">Tags</label>
-      <input
-        type="text"
-        name="tags"
-        value={formData.tags}
-        onChange={handleChange}
-        required
-        className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none"
-      />
-    </div>
-  );
+  // Remove tagsInput entirely
 
   return (
     <BaseEventForm
@@ -64,7 +50,6 @@ const PersonalEventForm: React.FC<PersonalEventFormProps> = ({
       onChange={handleChange}
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      tagsInput={tagsInput}
       formType={formType}
       onFormTypeToggle={onFormTypeToggle}
     />
