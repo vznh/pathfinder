@@ -82,21 +82,21 @@ export type Database = {
           email: string | null
           id: string
           name: string
-          type: "club" | "college" | null
+          type: Database["authenticated"]["Enums"]["organization_type"] | null
         }
         Insert: {
           created_at?: string
           email?: string | null
           id?: string
           name: string
-          type?: "club" | "college" | null
+          type?: Database["authenticated"]["Enums"]["organization_type"] | null
         }
         Update: {
           created_at?: string
           email?: string | null
           id?: string
           name?: string
-          type?: "club" | "college" | null
+          type?: Database["authenticated"]["Enums"]["organization_type"] | null
         }
         Relationships: []
       }
@@ -302,7 +302,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      organization_type: "club" | "college"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -417,6 +417,8 @@ export type CompositeTypes<
 
 export const Constants = {
   authenticated: {
-    Enums: {},
+    Enums: {
+      organization_type: ["club", "college"],
+    },
   },
 } as const
