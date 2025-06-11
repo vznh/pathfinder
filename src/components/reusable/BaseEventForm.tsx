@@ -104,22 +104,13 @@ const BaseEventForm: React.FC<BaseEventFormProps> = ({
           </div>
 
           <div className="mt-4 flex items-center">
-            {onFormTypeToggle && formType === "personal" && (
+            {onFormTypeToggle && formType && (
               <button
                 type="button"
                 onClick={onFormTypeToggle}
                 className="text-xs bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600 mr-auto"
               >
-                Switch to Org
-              </button>
-            )}
-            {onFormTypeToggle && formType === "org" && (
-              <button
-                type="button"
-                onClick={onFormTypeToggle}
-                className="text-xs bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600 mr-auto"
-              >
-                Switch to Personal
+                {formType === "personal" ? "Switch to Org" : "Switch to Personal"}
               </button>
             )}
             <div className="flex gap-2 ml-auto">

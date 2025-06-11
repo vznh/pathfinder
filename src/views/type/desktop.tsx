@@ -386,6 +386,13 @@ const DesktopView = ({event_id}: ViewProps) => {
     setShowEventForm(true);
   };
 
+  const hasOrg = orgs.some(o => o.userIsPartOf);   // true ⇢ user is in an org
+
+  const handleFormTypeToggle = () => {
+    if (!hasOrg) return;                           // bail if the user isn’t in an org
+    setFormType(prev => (prev === 'personal' ? 'org' : 'personal'));
+  };
+
   return (
     <div>
       <div className="absolute inset-0">
@@ -408,10 +415,7 @@ const DesktopView = ({event_id}: ViewProps) => {
             onSubmit={handleCreateEvent}
             onCancel={handleClosePopup}
             formType={formType}
-            onFormTypeToggle={orgs.some(o => o.userIsPartOf) ? () =>
-              setFormType((prev) =>
-                prev === "personal" ? "org" : "personal"
-              ) : undefined}
+            onFormTypeToggle={hasOrg ? handleFormTypeToggle : undefined}
           />
         ) : (
           <OrganizationEventForm
@@ -419,7 +423,7 @@ const DesktopView = ({event_id}: ViewProps) => {
             onSubmit={handleCreateEvent}
             onCancel={handleClosePopup}
             formType={formType}
-            // No switch for org form
+            onFormTypeToggle={hasOrg ? handleFormTypeToggle : undefined}
           />
         )
       )}
