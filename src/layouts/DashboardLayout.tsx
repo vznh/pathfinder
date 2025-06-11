@@ -27,6 +27,7 @@ interface DashboardLayoutProps {
   event_id: string | null;
   dateRange: DateRange;
   onDateRangeChange: (r: DateRange) => void;
+  onAuthChange?: (isAuthenticated: boolean) => void;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -41,6 +42,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   event_id,
   dateRange,
   onDateRangeChange,
+  onAuthChange,
 }) => {
   const supabase = createClient(); // Initialize Supabase client
   const [isAuthenticated, setIsAuthenticated] = useState(false); // State for authentication status
@@ -53,11 +55,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     supabase.auth.getUser()
       .then(({ data: { user } }) => {
         setIsAuthenticated(!!user);
+        if (typeof onAuthChange === 'function') {
+          onAuthChange(!!user);
+        }
       })
 
     // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session?.user);
+      if (typeof onAuthChange === 'function') {
+        onAuthChange(!!session?.user);
+      }
       // Close overlay and clear error on successful sign in
       if (event === 'SIGNED_IN') {
         setIsOverlayOpen(false);
@@ -69,7 +77,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, onAuthChange]);
 
   const handleOpenOverlay = () => {
     setIsOverlayOpen(true);
@@ -195,9 +203,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Bottom row */}
 
-       {/* Bottom left */}
+      {/* Bottom left */}
       <div
-        className={`pointer-events-auto flex items-end justify-start p-4 ${borderClasses}`}
+        className={`pointer-events-auto flex flex-col items-start justify-end p-4 ${borderClasses}`}
       >
         {/* Show login button only if not authenticated */}
         {!isAuthenticated && (
@@ -209,21 +217,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             Sign in with Google
           </button>
         )}
-        {/* Example: Create Event button or other actions can go here if authenticated */}
-        {/* {isAuthenticated && <Button ... />} */}
-      </div>
-      <div
-        className={`pointer-events-none flex items-end justify-center p-4 ${borderClasses}`}
-      >
-        {/* Bottom center */}
         {isAuthenticated && (
           <DateRangeFilter
             range={dateRange}
             onChange={onDateRangeChange}
-            className="pointer-events-auto ml-4"
+            className="pointer-events-auto mt-4"
           />
         )}
       </div>
+      <div className="pointer-events-none" />
       <div
         className={`pointer-events-none flex items-end justify-end p-4 ${borderClasses}`}
       >

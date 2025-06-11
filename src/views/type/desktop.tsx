@@ -6,6 +6,7 @@ import { EventData } from "@/components/specific/RSVP";
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/supabase/component";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import { fetchEventsAndOrgs } from "@/utils/fetchEventsAndOrgs";
 import WaypointPopup from "@/components/specific/WaypointPopup";
 import PersonalEventForm from "@/components/specific/PersonalEventForm";
 import type { PersonalEventFormProps } from "@/components/specific/PersonalEventForm";
@@ -61,6 +62,20 @@ const DesktopView = ({event_id}: ViewProps) => {
   const [orgSearchOpen, setOrgSearchOpen] = useState(false);
   const handleOrgSearchToggle = () => setOrgSearchOpen(prev => !prev);
   const events = useEventsStore(state => state.events);
+  const setEvents = useEventsStore(state => state.setEvents);
+  const setRawOrgs = useOrgsStore(state => state.setOrgs);
+  // Handler to re-fetch events and orgs after login
+  const handleAuthChange = async (isAuthenticated: boolean) => {
+    if (isAuthenticated) {
+      try {
+        const { events, orgs } = await fetchEventsAndOrgs();
+        setEvents(events);
+        setRawOrgs(orgs);
+      } catch (err) {
+        console.error("Failed to fetch events/orgs after login:", err);
+      }
+    }
+  };
   const [user, setUser] = useState<any>(null);
 
   const supabase = createClient();
@@ -435,6 +450,7 @@ const DesktopView = ({event_id}: ViewProps) => {
         event_id={event_id}
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
+        onAuthChange={handleAuthChange}
       />
     </div>
   );
