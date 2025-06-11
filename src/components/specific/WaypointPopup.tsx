@@ -1,14 +1,15 @@
 import React from "react";
 import mapboxClient from "@/services/MapboxClient";
 
+
 interface WaypointPopupProps {
   coordinates: [number, number];
   onCreateEvent: () => void;
   onClose: () => void;
-  
+  isAuthenticated?: boolean;
 }
 
-const WaypointPopup: React.FC<WaypointPopupProps> = ({ coordinates, onCreateEvent, onClose }) => {
+const WaypointPopup: React.FC<WaypointPopupProps> = ({ coordinates, onCreateEvent, onClose, isAuthenticated }) => {
   return (
     <div className="absolute left-[calc(50%+20px)] top-1/2 -translate-y-1/2">
       <div className="relative bg-gray-800 text-white rounded-2xl shadow-2xl p-6 w-96">
@@ -28,12 +29,14 @@ const WaypointPopup: React.FC<WaypointPopupProps> = ({ coordinates, onCreateEven
           >
             Navigate
           </button>
-          <button
-            onClick={onCreateEvent}
-            className="flex-1 bg-white text-gray-900 rounded-lg py-2 font-semibold shadow hover:bg-gray-100 transition"
-          >
-            Create Event
-          </button>
+          {isAuthenticated && (
+            <button
+              onClick={onCreateEvent}
+              className="flex-1 bg-white text-gray-900 rounded-lg py-2 font-semibold shadow hover:bg-gray-100 transition"
+            >
+              Create Event
+            </button>
+          )}
         </div>
         <div className="mb-2 font-semibold">Details</div>
         <div className="bg-gray-700 rounded-lg px-3 py-2 text-sm mb-4">

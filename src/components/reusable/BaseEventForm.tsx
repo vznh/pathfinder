@@ -103,17 +103,26 @@ const BaseEventForm: React.FC<BaseEventFormProps> = ({
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between">
-            {onFormTypeToggle && formType && (
+          <div className="mt-4 flex items-center">
+            {onFormTypeToggle && formType === "personal" && (
               <button
                 type="button"
                 onClick={onFormTypeToggle}
-                className="text-xs bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600"
+                className="text-xs bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600 mr-auto"
               >
-                {formType === "personal" ? "Switch to Org" : "Switch to Personal"}
+                Switch to Org
               </button>
             )}
-            <div className="flex gap-2">
+            {onFormTypeToggle && formType === "org" && (
+              <button
+                type="button"
+                onClick={onFormTypeToggle}
+                className="text-xs bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600 mr-auto"
+              >
+                Switch to Personal
+              </button>
+            )}
+            <div className="flex gap-2 ml-auto">
               <button
                 type="button"
                 onClick={onCancel}
@@ -128,7 +137,7 @@ const BaseEventForm: React.FC<BaseEventFormProps> = ({
                 {title === "Edit Event" ? "Save" : "Create"}
               </button>
             </div>
-            </div>
+          </div>
         </form>
       </div>
     </div>

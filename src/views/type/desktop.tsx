@@ -143,7 +143,15 @@ const DesktopView = ({event_id}: ViewProps) => {
         }
       }
     }
-  }, [events, orgs, user, dateRange]);
+
+    // After all markers are rendered, show the RSVP tab if event_id is present
+    if (event_id) {
+      // Wait a tick to ensure markers are rendered
+      setTimeout(() => {
+        mapboxClient.events.showEventMarker(event_id);
+      }, 0);
+    }
+  }, [events, orgs, user, dateRange, event_id]);
 
   const handleToggleSubscribe = async (id: string, next: boolean) => {
     console.log(`Tried to ${next ? "subscribe to" : "unsubscribe from"} org ${id}`);
@@ -389,6 +397,7 @@ const DesktopView = ({event_id}: ViewProps) => {
           coordinates={selectedWaypoint}
           onCreateEvent={handleOpenEventForm}
           onClose={handleClosePopup}
+          isAuthenticated={!!user}
         />
       )}
 
@@ -399,11 +408,10 @@ const DesktopView = ({event_id}: ViewProps) => {
             onSubmit={handleCreateEvent}
             onCancel={handleClosePopup}
             formType={formType}
-            onFormTypeToggle={() =>
+            onFormTypeToggle={orgs.some(o => o.userIsPartOf) ? () =>
               setFormType((prev) =>
                 prev === "personal" ? "org" : "personal"
-              )
-            }
+              ) : undefined}
           />
         ) : (
           <OrganizationEventForm
@@ -411,11 +419,7 @@ const DesktopView = ({event_id}: ViewProps) => {
             onSubmit={handleCreateEvent}
             onCancel={handleClosePopup}
             formType={formType}
-            onFormTypeToggle={() =>
-              setFormType((prev) =>
-                prev === "personal" ? "org" : "personal"
-              )
-            }
+            // No switch for org form
           />
         )
       )}
@@ -430,6 +434,7 @@ const DesktopView = ({event_id}: ViewProps) => {
       <DashboardLayout
         development={false}
         onWaypointModeToggle={handleWaypointModeToggle}
+        waypointMode={waypointMode}  
         searchInput={searchInput}
         onSearchInputChange={handleSearchChange}
         filteredSuggestions={filteredSuggestions}

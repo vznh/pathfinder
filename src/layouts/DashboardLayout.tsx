@@ -18,6 +18,7 @@ import DateRangeFilter, { DateRange } from "@/components/reusable/DateRangeFilte
 interface DashboardLayoutProps {
   development?: boolean;
   onWaypointModeToggle?: () => void;
+  waypointMode?: boolean;
   searchInput: string;
   onSearchInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   filteredSuggestions: { name: string; coordinates: [number, number]; source: "local" | "mapbox" }[];
@@ -31,6 +32,7 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   development = false,
   onWaypointModeToggle,
+  waypointMode = false,
   searchInput,
   onSearchInputChange,
   filteredSuggestions,
@@ -116,8 +118,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       >
         {/* Top left */}
         <button
-          className="pointer-events-auto p-2 rounded-lg bg-white w-12 h-12 flex items-center justify-center hover:bg-gray-100 text-gray-800 transition"
-          aria-label="Add"
+          className={`pointer-events-auto p-2 rounded-lg w-12 h-12 flex
+                      items-center justify-center transition
+                      ${waypointMode
+                        ? 'bg-blue-500 text-white'          // active colour
+                        : 'bg-white text-gray-800 hover:bg-gray-100'}`}
+          aria-pressed={waypointMode}
+          aria-label="Add waypoint"
           onClick={onWaypointModeToggle}
         >
           <PlusCircledIcon className="w-5 h-5" />
@@ -162,7 +169,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         className={`pointer-events-none flex items-start justify-end p-4 ${borderClasses}`}
       >
         {/* Top right */}
-        {onOrgSearchToggle && (
+        {isAuthenticated && onOrgSearchToggle && (
           <button
             onClick={onOrgSearchToggle}
             className="pointer-events-auto bg-white hover:bg-gray-100 text-gray-800 rounded-lg p-2 transition mr-2"
@@ -192,27 +199,36 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <div
         className={`pointer-events-auto flex items-end justify-start p-4 ${borderClasses}`}
       >
-        <Button
-          icon={ isAuthenticated ? <Link2Icon className="w-4 h-4"/> : <LinkBreak2Icon className="w-4 h-4"/> }
-          position={ "bottom-left" }
-          onClick={isAuthenticated ? undefined : handleOpenOverlay} // Open overlay only if not authenticated
-        />
+        {/* Show login button only if not authenticated */}
+        {!isAuthenticated && (
+          <button
+            className="pointer-events-auto flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-lg shadow transition border border-gray-300"
+            onClick={handleOpenOverlay}
+          >
+            <LinkBreak2Icon className="w-4 h-4" />
+            Sign in with Google
+          </button>
+        )}
+        {/* Example: Create Event button or other actions can go here if authenticated */}
+        {/* {isAuthenticated && <Button ... />} */}
       </div>
       <div
         className={`pointer-events-none flex items-end justify-center p-4 ${borderClasses}`}
       >
         {/* Bottom center */}
-        <DateRangeFilter
-          range={dateRange}
-          onChange={onDateRangeChange}
-          className="pointer-events-auto ml-4"
-        />
+        {isAuthenticated && (
+          <DateRangeFilter
+            range={dateRange}
+            onChange={onDateRangeChange}
+            className="pointer-events-auto ml-4"
+          />
+        )}
       </div>
       <div
         className={`pointer-events-none flex items-end justify-end p-4 ${borderClasses}`}
       >
         {/* Bottom right */}
-        <Legend />
+        {isAuthenticated && <Legend />}
       </div>
 
       {/* SignInOverlay component */}
