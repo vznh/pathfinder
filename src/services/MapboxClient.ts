@@ -190,8 +190,13 @@ class EventServiceImpl implements EventService {
   }
 
   showEventMarker(event_id: string) {
-    const marker = this.eventMarkers.get(event_id) // click here!
+    // This will open the RSVP popup for the marker with the given event_id
+    const marker = this.eventMarkers.get(event_id);
     if (!marker) return;
+    // Remove any existing popups
+    const existingPopups = document.getElementsByClassName('mapboxgl-popup');
+    Array.from(existingPopups).forEach(popup => popup.remove());
+    // Simulate a click on the marker element to open the RSVP popup
     const el = marker.getElement();
     if (el) {
       el.dispatchEvent(

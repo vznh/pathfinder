@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import BaseEventForm from "../reusable/BaseEventForm";
 import { useOrgsStore } from "@/stores/useOrgsStore";
 
-// ✅ Define props explicitly for consistency
 export interface OrganizationEventFormProps {
   coordinates: [number, number];
   onSubmit: (eventData: {
