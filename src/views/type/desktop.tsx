@@ -343,18 +343,26 @@ const DesktopView = ({event_id}: ViewProps) => {
           event: formData.name,
           latitude: lat,
           longitude: lng,
+          type: formData.tags,
           description: formData.description,
           date: formData.date,
           start_time: formData.startTime,
           end_time: formData.endTime,
         };
 
+        const org = orgs.find(o => o.org_name === formData.tags);   
+        let selectedOrgId: string | undefined;
+        if (org){
+          selectedOrgId = org.org_id;
+        } else {
+          console.error("Organization not in database");
+        }
+
         // Dynamically add either user_id or organization_id
         if (formType === 'personal') {
           insertData.user_id = user.id;
         } else if (formType === 'org') {
-          // You may want to select org by another means now that tags are removed
-          // insertData.organization_id = selectedOrgId; // Replace with actual organization ID
+          insertData.organization_id = selectedOrgId; // Replace with actual organization ID
         }
 
         const { error: insertError } = await supabase.from("events_v0").insert(insertData);

@@ -99,6 +99,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
 
   const handleEditSubmit = async (updatedData: {
     name: string;
+    tags: string;
     description: string;
     date: string;
     startTime: string;
@@ -112,6 +113,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
         .from("events_v0")
         .update({
           event: updatedData.name,
+          type: updatedData.tags,
           description: updatedData.description,
           date: updatedData.date,
           start_time: updatedData.startTime,
@@ -160,6 +162,7 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
       <EditEventForm
         initialData={{
           name: event.name,
+          tags: event.type,
           description: event.description || "",
           date: event.date,
           startTime: event.startTime,
@@ -167,6 +170,8 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
         }}
         onSubmit={handleEditSubmit}
         onCancel={() => setIsEditing(false)}
+        readonlyTags={event.creator.isUserOrg}
+        tagsLabel={event.creator.isUserOrg ? "Organization" : "Tags"}
       />
     )
   }
@@ -190,6 +195,9 @@ export function EventRsvp({ event, onClose, onUpdate }: EventRsvpProps) {
       </div>
 
       <div className="p-3 space-y-3 border-b border-gray-700">
+        <div className="flex items-start">
+          <span className="inline-block px-2 py-1 text-xs rounded bg-gray-700 text-blue-400">{event.type}</span>
+        </div>
         {event.description && <p className="text-xs text-gray-300">{event.description}</p>}
         <div className="flex items-center text-xs text-gray-300">
           <Calendar className="h-3 w-3 mr-1" />

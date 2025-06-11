@@ -4,18 +4,18 @@ export interface BaseEventFormProps {
   title?: string
   formData: {
     name: string
+    tags: string
     description: string
     date: string
     startTime: string
     endTime: string
-    // tags?: string // removed
   }
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void
   onSubmit: (e: React.FormEvent) => void
   onCancel: () => void
-  tagsInput?: React.ReactNode // now optional
+  tagsInput: React.ReactNode
   formType?: 'personal' | 'org'
   onFormTypeToggle?: () => void
 }
